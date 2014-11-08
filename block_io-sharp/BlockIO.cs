@@ -12,7 +12,7 @@ namespace block_io_sharp
     public class BlockIO
     {
         private string ApiKey { get; set; }
-        private string Url = "https://block.io/api/v1/";
+        private string Uri = "https://block.io/api/v1/";
         
         public BlockIO(string _ApiKey)
         {
@@ -22,10 +22,15 @@ namespace block_io_sharp
         public APIResponse apiCall (string Method, Dictionary<string, string> Parameters)
         {
             WebClient Client = new WebClient();
-            string CompositeUrl = Url + Method + "/";
+            Uri url = new Uri(Uri+ Method + "/");
             Parameters.Add("api_key", this.ApiKey);
 
-            string JsonString = Client.DownloadString(CompositeUrl);
+            foreach (KeyValuePair<string, string> entry in Parameters)
+            {
+                url.AddQuery(entry.Key, entry.Value);
+            }
+
+            string JsonString = Client.DownloadString(url);
             DataContractJsonSerializer Ser = new DataContractJsonSerializer(typeof (APIResponse));
             byte[] byteArray = Encoding.UTF8.GetBytes(JsonString);
             MemoryStream stream = new MemoryStream(byteArray);
@@ -73,5 +78,6 @@ namespace block_io_sharp
 
             return apiCall("get_address_received", Params);
         }
+
     }
 }
