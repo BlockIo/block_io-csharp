@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Net;
-using System.Collections.Specialized;
-using System.Runtime.Serialization.Json;
-using System.Runtime.Serialization;
 using System.IO;
-using System.Diagnostics;
+using System.Net;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Web.Script.Serialization;
 
 namespace block_io_sharp
@@ -29,7 +25,6 @@ namespace block_io_sharp
             string JsonString = string.Empty;
             APIResponse Response = new APIResponse();
             Parameters.Add("api_key", this.ApiKey);
-            Console.WriteLine(url + "?" + Parameters.ToString());
             try
             {
                 JsonString = Client.DownloadString(url + "?" + Parameters.ToString());
@@ -51,6 +46,19 @@ namespace block_io_sharp
                 throw new Exception("Block.io API Error: " + Response.Data["error_message"]);
             }
             return Response;
+        }
+
+        private string CombineString(string DestinationString, string Item)
+        {
+            if (DestinationString == string.Empty)
+            {
+                DestinationString = Item;
+            }
+            else
+            {
+                DestinationString = DestinationString + "," + Item;
+            }
+            return DestinationString;
         }
 
         /// <summary>
@@ -100,11 +108,7 @@ namespace block_io_sharp
             {
                 foreach (string Item in Values)
                 {
-                    if (CombinedValues == string.Empty)
-                    {
-                        CombinedValues = Item;
-                    }
-                    else CombinedValues = CombinedValues + "," + Item;
+                    CombinedValues = CombineString(CombinedValues, Item);
                 }
                 Params.Add(Type, CombinedValues);
             }
@@ -140,19 +144,11 @@ namespace block_io_sharp
             string CombinedAddresses = string.Empty;
             foreach (string Item in Amounts)
             {
-                if (CombinedAmounts == string.Empty)
-                {
-                    CombinedAmounts = Item;
-                }
-                else CombinedAmounts = CombinedAmounts + "," + Item;
+                CombinedAmounts = CombineString(CombinedAmounts, Item);
             }
             foreach (string Item in Addresses)
             {
-                if (CombinedAddresses == string.Empty)
-                {
-                    CombinedAddresses = Item;
-                }
-                else CombinedAddresses = CombinedAddresses + "," + Item; 
+                CombinedAddresses = CombineString(CombinedAddresses, Item); 
             }
             Params.Add("amounts", CombinedAmounts);
             Params.Add("addresses", CombinedAddresses);
@@ -173,27 +169,15 @@ namespace block_io_sharp
             string CombinedAmounts = string.Empty;
             foreach (string Item in FromAddresses)
             {
-                if (CombinedFromAddresses == string.Empty)
-                {
-                    CombinedFromAddresses = Item;
-                }
-                else CombinedFromAddresses = CombinedFromAddresses + "," + Item;
+                CombinedFromAddresses = CombineString(CombinedFromAddresses, Item);
             }
             foreach (string Item in ToAddresses)
             {
-                if (CombinedToAddresses == string.Empty)
-                {
-                    CombinedToAddresses = Item;
-                }
-                else CombinedToAddresses = CombinedToAddresses + "," + Item;
+                CombinedToAddresses = CombineString(CombinedToAddresses, Item);
             }
             foreach (string Item in Amounts)
             {
-                if (CombinedAmounts == string.Empty)
-                {
-                    CombinedAmounts = Item;
-                }
-                else CombinedAmounts = CombinedAmounts + "," + Item;
+                CombinedAmounts = CombineString(CombinedAmounts, Item);
             }
             Params.Add("from_addresses", CombinedFromAddresses);
             Params.Add("to_addresses", CombinedToAddresses);
@@ -215,21 +199,13 @@ namespace block_io_sharp
             string CombinedAmounts = string.Empty;
             foreach (string Item in FromLabels)
             {
-                if (CombinedFromLabels == string.Empty)
-                {
-                    CombinedFromLabels = Item;
-                }
-                else CombinedFromLabels = CombinedFromLabels + "," + Item;
+                CombinedFromLabels = CombineString(CombinedFromLabels, Item);
             }
             if (ToAddresses != null || ToLabels == null)
             {
                 foreach (string Item in ToAddresses)
                 {
-                    if (CombinedToAddresses == string.Empty)
-                    {
-                        CombinedToAddresses = Item;
-                    }
-                    else CombinedToAddresses = CombinedToAddresses + "," + Item;
+                    CombinedToAddresses = CombineString(CombinedToAddresses, Item);
                 }
                 Params.Add("to_addresses", CombinedToAddresses);
             }
@@ -237,30 +213,18 @@ namespace block_io_sharp
             {
                 foreach (string Item in ToLabels)
                 {
-                    if (CombinedToLabels == string.Empty)
-                    {
-                        CombinedToLabels = Item;
-                    }
-                    else CombinedToLabels = CombinedToLabels + "," + Item;
+                    CombinedToLabels = CombineString(CombinedToLabels, Item);
                 }
                 Params.Add("to_labels", CombinedToLabels);
             }
             
             foreach (string Item in Amounts)
             {
-                if (CombinedAmounts == string.Empty)
-                {
-                    CombinedAmounts = Item;
-                }
-                else CombinedAmounts = CombinedAmounts + "," + Item;
+                CombinedAmounts = CombineString(CombinedAmounts, Item);
             }
             Params.Add("from_labels", CombinedFromLabels);
             Params.Add("amounts", CombinedAmounts);
             Params.Add("pin", Pin);
-            Console.WriteLine(CombinedFromLabels);
-            Console.WriteLine(CombinedAmounts);
-            Console.WriteLine(CombinedToAddresses);
-            Console.WriteLine(CombinedToLabels);
             return apiCall("withdraw_from_addresses", Params);
         }
 
@@ -289,11 +253,7 @@ namespace block_io_sharp
             string CombinedAddresses = string.Empty;
             foreach (string Item in Addresses)
             {
-                if (CombinedAddresses == string.Empty)
-                {
-                    CombinedAddresses = Item;
-                }
-                else CombinedAddresses = CombinedAddresses + "," + Item;
+                CombinedAddresses = CombineString(CombinedAddresses, Item);
             }
             Params.Add("addresses", CombinedAddresses);
 
@@ -310,11 +270,7 @@ namespace block_io_sharp
             string CombinedTransactions = string.Empty;
             foreach (string Item in Transactions)
             {
-                if (CombinedTransactions == string.Empty)
-                {
-                    CombinedTransactions = Item;
-                }
-                else CombinedTransactions = CombinedTransactions + "," + Item;
+                CombinedTransactions = CombineString(CombinedTransactions, Item);
             }
             Params.Add("transaction_ids", CombinedTransactions);
 
@@ -356,11 +312,7 @@ namespace block_io_sharp
             string CombinedList = string.Empty;
             foreach (string Item in List)
             {
-                if (CombinedList == string.Empty)
-                {
-                    CombinedList = Item;
-                }
-                else CombinedList = CombinedList + "," + Item;
+                CombinedList = CombineString(CombinedList, Item);
             }
             Params.Add("type", Type);
             Params.Add(ListType, CombinedList);
@@ -378,11 +330,7 @@ namespace block_io_sharp
             string CombinedAddresses = string.Empty;
             foreach (string Item in Addresses)
             {
-                if (CombinedAddresses == string.Empty)
-                {
-                    CombinedAddresses = Item;
-                }
-                else CombinedAddresses = CombinedAddresses + "," + Item;
+                CombinedAddresses = CombineString(CombinedAddresses, Item);
             }
             Params.Add("type", Type);
             Params.Add("before_tx", BeforeTX);
