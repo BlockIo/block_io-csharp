@@ -1,5 +1,0 @@
-c:\users\maximumpanda\documents\visual studio 2013\Projects\block_io-sharp\block_io-sharp\bin\Release\block_io-sharp.dll
-c:\users\maximumpanda\documents\visual studio 2013\Projects\block_io-sharp\block_io-sharp\bin\Release\block_io-sharp.pdb
-c:\users\maximumpanda\documents\visual studio 2013\Projects\block_io-sharp\block_io-sharp\obj\Release\block_io-sharp.dll
-c:\users\maximumpanda\documents\visual studio 2013\Projects\block_io-sharp\block_io-sharp\obj\Release\block_io-sharp.pdb
-C:\Users\maximumpanda\Documents\Visual Studio 2013\Projects\block_io-sharp\block_io-sharp\obj\Release\block_io-sharp.csprojResolveAssemblyReference.cache

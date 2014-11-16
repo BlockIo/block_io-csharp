@@ -151,7 +151,7 @@ namespace block_io_sharp
                 CombinedAddresses = CombineString(CombinedAddresses, Item); 
             }
             Params.Add("amounts", CombinedAmounts);
-            Params.Add("addresses", CombinedAddresses);
+            Params.Add("to_addresses", CombinedAddresses);
             Params.Add("pin", Pin);
 
             return apiCall("withdraw", Params);
@@ -183,7 +183,6 @@ namespace block_io_sharp
             Params.Add("to_addresses", CombinedToAddresses);
             Params.Add("amounts", CombinedAmounts);
             Params.Add("pin", Pin);
-
             return apiCall("withdraw_from_addresses", Params);
         }
         /// <summary>
@@ -225,7 +224,7 @@ namespace block_io_sharp
             Params.Add("from_labels", CombinedFromLabels);
             Params.Add("amounts", CombinedAmounts);
             Params.Add("pin", Pin);
-            return apiCall("withdraw_from_addresses", Params);
+            return apiCall("withdraw_from_labels", Params);
         }
 
         /// <summary>
