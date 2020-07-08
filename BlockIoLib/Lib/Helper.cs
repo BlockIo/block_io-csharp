@@ -115,7 +115,7 @@ namespace BlockIoLib
             if(PubKey == PubKeyToVerify)
                 return ByteArrayToHexString(PrivKey.Sign(new uint256 (HexStringToByteArray(DataToSign))).ToDER());
 
-            return "";
+            return null;
 
         }
     }

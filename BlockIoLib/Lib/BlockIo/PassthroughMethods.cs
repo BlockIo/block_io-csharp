@@ -19,6 +19,7 @@ namespace BlockIoLib
         public BlockIoResponse<dynamic> GetUserReceived(string args = "{}") { return _request("POST", "get_user_received", args).Result; }
         public BlockIoResponse<dynamic> GetTransactions(string args = "{}") { return _request("POST", "get_transactions", args).Result; }
         public BlockIoResponse<dynamic> SignAndFinalizeWithdrawal(string args = "{}") { return _request("POST", "sign_and_finalize_withdrawal", args).Result; }
+        public BlockIoResponse<dynamic> GetNewDtrustAddress(string args = "{}") { return _request("POST", "get_new_dtrust_address", args).Result; }
         public BlockIoResponse<dynamic> GetMyDtrustAddresses(string args = "{}") { return _request("POST", "get_my_dtrust_addresses", args).Result; }
         public BlockIoResponse<dynamic> GetDtrustAddressByLabel(string args = "{}") { return _request("POST", "get_dtrust_address_by_label", args).Result; }
         public BlockIoResponse<dynamic> GetDtrustTransactions(string args = "{}") { return _request("POST", "get_dtrust_transactions", args).Result; }

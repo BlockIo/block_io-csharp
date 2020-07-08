@@ -1,7 +1,4 @@
 ﻿using BlockIoLib.Examples;
-using NBitcoin;
-using System;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace BlockIoLib
 {
@@ -13,8 +10,8 @@ namespace BlockIoLib
              * Examples
              */
 
-            Basic basicExample = new Basic();
-            basicExample.RunBasicExample();
+            DTrust dTrustExample = new DTrust();
+            dTrustExample.RunDtrustExample();
         }
     }
 }

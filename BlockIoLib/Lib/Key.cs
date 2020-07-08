@@ -1,6 +1,7 @@
 ﻿using System;
 using Base58Check;
 using System.Linq;
+using System.Text;
 
 namespace BlockIoLib
 {
@@ -53,6 +54,14 @@ namespace BlockIoLib
         {
             byte[] Unhexlified = Helper.HexStringToByteArray(HexPass);
             byte[] Hashed = Helper.SHA256_hash(Unhexlified);
+
+            return new Key(Hashed);
+        }
+
+        public Key ExtractKeyFromPassphraseString(string pass)
+        {
+            byte[] password = Encoding.ASCII.GetBytes(pass);
+            byte[] Hashed = Helper.SHA256_hash(password);
 
             return new Key(Hashed);
         }
