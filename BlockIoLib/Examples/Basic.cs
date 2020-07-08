@@ -12,8 +12,8 @@ namespace BlockIoLib.Examples
 
         public Basic()
         {
-            var path = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..");
-            path = Path.GetFullPath(path) + "\\.env";
+            var path = Path.Combine(Directory.GetCurrentDirectory());
+            path = Path.GetFullPath(path) + "/.env";
             DotEnv.Config(true, path);
             DotEnv.Config(true, path, Encoding.Unicode, false);
             var envReader = new EnvReader();

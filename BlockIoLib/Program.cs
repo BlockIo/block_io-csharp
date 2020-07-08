@@ -13,8 +13,8 @@ namespace BlockIoLib
              * Examples
              */
 
-            //Basic basicExample = new Basic();
-            //basicExample.RunBasicExample();
+            Basic basicExample = new Basic();
+            basicExample.RunBasicExample();
 
             //Proxy proxyExample = new Proxy();
             //proxyExample.RunProxyExample();
@@ -22,8 +22,8 @@ namespace BlockIoLib
             //Sweeper sweeperExample = new Sweeper();
             //sweeperExample.RunSweeperExample();
 
-            MaxWithdrawal maxWithdrawal = new MaxWithdrawal();
-            maxWithdrawal.RunMaxWithdrawalExample();
+            // MaxWithdrawal maxWithdrawal = new MaxWithdrawal();
+            // maxWithdrawal.RunMaxWithdrawalExample();
 
             /**
              * TESTS
