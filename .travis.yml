@@ -1,0 +1,13 @@
+language: csharp
+mono: none
+solution: BlockIoLib.sln
+dotnet: 3.0
+script:
+  - dotnet restore
+  - dotnet test
+
+
+
+
+
+

@@ -1,0 +1,46 @@
+version: 1.0.{build}
+
+# branches to build
+branches:
+  # whitelist
+  only:
+    - master
+    - production
+    - feature/unit-tests
+
+environment:
+  matrix:
+    - architecture: "x86"
+      hashOne: "b9728e15-2acb-4a02-ba8e-d122bd2c497c"
+      hashTwo: "ad2258b4463a4180187b1fed0f340971"
+    - architecture: "x64"
+      hashOne: "874a85a8-de9b-405d-b75e-9c3e9b3ddd0d"
+      hashTwo: "eb5f33724a7ba55d47fd12b2f1f8f764"
+    
+
+install:
+  # Download .NET Core 2.0 Preview 2 SDK and add to PATH
+  - ps: set directory "https://download.visualstudio.microsoft.com/download/pr/$env:hashOne/$env:hashTwo/dotnet-sdk-3.0.103-win-$env:architecture.zip"
+  - ps: $urlCurrent = Get-Variable -Name directory -ValueOnly
+  - ps: echo "Downloading dotnet from $urlCurrent"
+  - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetsdk"
+  - ps: mkdir $env:DOTNET_INSTALL_DIR -Force | Out-Null
+  - ps: $tempFileCurrent = [System.IO.Path]::GetTempFileName()
+  - ps: (New-Object System.Net.WebClient).DownloadFile($urlCurrent, $tempFileCurrent)
+  - ps: Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory($tempFileCurrent, $env:DOTNET_INSTALL_DIR)
+  - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"  
+
+before_build:
+  - cmd: dotnet --version
+  # Display minimal restore text
+  - cmd: dotnet restore ./BlockIoLib/BlockIoLib.csproj --verbosity m
+  - cmd: nuget restore BlockIoLib.sln
+
+test_script:
+  # restore packages for our unit tests
+  - cmd: dotnet restore ./BlockIoLib.UnitTests/BlockIoLib.UnitTests.csproj --verbosity m
+  - cmd: cd BlockIoLib.UnitTests
+  - cmd: dotnet test
+
+
+
