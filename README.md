@@ -10,7 +10,7 @@ It's super easy to get started. In your code, do this:
     BlockIo blockLib = new BlockIo(API_KEY, PIN);
 
     // print the account balance request's response
-    var data = blockLib.GetBalance(console.log).Data;
+    var data = blockLib.GetBalance().Data;
 
     // print the request's status
     var status = blockLib.GetBalance().Status
