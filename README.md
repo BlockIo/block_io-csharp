@@ -33,8 +33,7 @@ It's super easy to get started. In your code, do this:
 
 Args are in JSON format and need to be passed like this: 
 
-```bash
-"{param1: 'stringValue', param2: intValue, param3: ['this', 'is', 'a', 'list', 'of', 'strings']}"
+    "{param1: 'stringValue', param2: intValue, param3: ['this', 'is', 'a', 'list', 'of', 'strings']}"
 
 ## Testing
 
