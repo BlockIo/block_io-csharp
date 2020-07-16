@@ -10,8 +10,11 @@ namespace BlockIoLib
              * Examples
              */
 
-            DTrust dTrustExample = new DTrust();
-            dTrustExample.RunDtrustExample();
+            // DTrust dTrustExample = new DTrust();
+            // dTrustExample.RunDtrustExample();
+
+            MockServer server = new MockServer();
+
         }
     }
 }
