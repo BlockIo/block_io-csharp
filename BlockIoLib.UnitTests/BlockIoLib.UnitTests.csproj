@@ -15,5 +15,8 @@
   <ItemGroup>
     <ProjectReference Include="..\BlockIoLib\BlockIoLib.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Mock\Mock.csproj" />
+  </ItemGroup>
 
 </Project>
