@@ -41,6 +41,7 @@ namespace BlockIoLib
         public BlockIo(string Config, string Pin = null, int Version = 2, string Options = null)
         {
             this.Options = JsonConvert.DeserializeObject("{allowNoPin: false}");
+            this.ApiUrl = "";
             this.Pin = Pin;
             this.AesKey = null;
             dynamic ConfigObj;
@@ -77,24 +78,28 @@ namespace BlockIoLib
                 {
                     this.Pin = Pin;
                     this.AesKey = Helper.PinToAesKey(this.Pin);
-                    if(Options != null)
-                    {
-                        try
-                        {
-                            this.Options = JsonConvert.DeserializeObject(Options);
-                            this.Options.allowNoPin = false;
-                        }
-                        catch(Exception ex2)
-                        {
-                            //Options is a string, not an obj: Do nothing
-                        }
-                    }
                 }
             }
+
+            if (Options != null)
+            {
+                try
+                {
+                    this.Options = JsonConvert.DeserializeObject(Options);
+                    
+                    this.Options.allowNoPin = false;
+                    ApiUrl = this.Options.api_url != null ? this.Options.api_url : "";
+                }
+                catch (Exception ex2)
+                {
+                    //Options is a string, not an obj: Do nothing
+                }
+            }
+
             string ServerString = Server != "" ? Server + "." : Server;  // eg: 'dev.'
             string PortString = Port != "" ? ":" + Port : Port;
 
-            ApiUrl = "https://" + ServerString + Host + PortString + "/api/v" + Version.ToString();
+            ApiUrl = ApiUrl == "" ? "https://" + ServerString + Host + PortString + "/api/v" + Version.ToString() : ApiUrl;
 
             RestClient = new RestClient(ApiUrl) { Authenticator = new BlockIoAuthenticator(ApiKey) };
         }
