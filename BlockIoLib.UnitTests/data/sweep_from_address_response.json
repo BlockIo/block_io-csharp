@@ -1,0 +1,30 @@
+﻿{
+  "status": "success",
+  "data": {
+    "reference_id": "1139ee242378134abbe6e32fc5afb8b2a445a9ac69fed80e4dd6036312b05461",
+    "inputs": [
+      {
+        "input_no": 0,
+        "signatures_needed": 1,
+        "data_to_sign": "4187096c9d66f5ff9f6423d76168cf66136a62d982ecdbebe08f153873343757",
+        "signers": [
+          {
+            "signer_public_key": "02d9798bba9d2c81ba38f4f3b6f586c199a21b2774abafb07f095478ed13bfda61",
+            "signed_data": null
+          }
+        ]
+      },
+      {
+        "input_no": 1,
+        "signatures_needed": 1,
+        "data_to_sign": "6877f9a559d9237050fd369114ec5a8f897f2c9f2aabf3c7d8d87dbf0aff197b",
+        "signers": [
+          {
+            "signer_public_key": "02d9798bba9d2c81ba38f4f3b6f586c199a21b2774abafb07f095478ed13bfda61",
+            "signed_data": null
+          }
+        ]
+      }
+    ]
+  }
+}
