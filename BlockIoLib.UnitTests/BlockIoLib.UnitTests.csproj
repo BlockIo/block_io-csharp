@@ -19,6 +19,9 @@
     <ProjectReference Include="..\Mock\Mock.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="data\sign_and_finalize_dtrust_withdrawal_request.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="data\sign_and_finalize_sweep_request.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -26,6 +29,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="data\sweep_from_address_response.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="data\withdraw_from_dtrust_address_response.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

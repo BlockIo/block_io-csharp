@@ -23,9 +23,12 @@ namespace BlockIoLib.UnitTests
 
         private static object withdrawRequestBodyContent;
         private static object sweepRequestBodyContent;
+        private static object dTrustRequestBodyContent;
         private static object sweepResponse;
         private static dynamic signAndWithdrawalRequest;
         private static dynamic signAndSweepRequest;
+        private static dynamic signAndDtrustRequest;
+        private static dynamic withdrawFromDtrustAddressResponse;
 
         [OneTimeSetUp]
         public static void PrepareClass()
@@ -113,6 +116,51 @@ namespace BlockIoLib.UnitTests
                                 txid = "random"
                             }
                         }));
+
+            dTrustRequestBodyContent = new { to_addresses = "QhSWVppS12Fqv6dh3rAyoB18jXh5mB1hoC", from_address = "tltc1q8y9naxlsw7xay4jesqshnpeuc0ap8fg9ejm2j2memwq4ng87dk3s88nr5j", amounts = 0.09 };
+
+            using (StreamReader r = new StreamReader("./data/withdraw_from_dtrust_address_response.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                withdrawFromDtrustAddressResponse = JsonConvert.DeserializeObject(json);
+            }
+            stub.Given(
+                Request.Create()
+                  .WithPath("/api/v2/withdraw_from_dtrust_address")
+                  )
+                  .RespondWith(
+                    Response.Create()
+                        .WithStatusCode(200)
+                        .WithHeader("Content-Type", "application/json")
+                        .WithBodyAsJson(withdrawFromDtrustAddressResponse));
+
+            using (StreamReader r = new StreamReader("./data/sign_and_finalize_sweep_request.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                signAndDtrustRequest = JsonConvert.DeserializeObject(json);
+                signAndDtrustRequest = signAndDtrustRequest.signature_data.ToString();
+                signAndDtrustRequest = JsonConvert.DeserializeObject(signAndDtrustRequest);
+            }
+
+            stub.Given(
+                Request.Create()
+                  .WithPath("/api/v2/sign_and_finalize_withdrawal")
+                  .UsingPost()
+                  .WithBody(new JsonMatcher(new { signature_data = signAndDtrustRequest.ToString() }))
+                  )
+                  .RespondWith(
+                    Response.Create()
+                        .WithStatusCode(200)
+                        .WithHeader("Content-Type", "application/json")
+                        .WithBodyAsJson(new
+                        {
+                            status = "success",
+                            data = new
+                            {
+                                network = "random",
+                                txid = "random"
+                            }
+                        }));
         }
 
         [OneTimeTearDown]
@@ -140,5 +188,16 @@ namespace BlockIoLib.UnitTests
             Assert.AreEqual("success", response.Status);
             Assert.IsNotNull(response.Data);
         }
+
+        [Test]
+        public void Dtrust()
+        {
+            pin = "blockiotestpininsecure";
+            blockIo = new BlockIo(api_key, pin, 2, "{api_url: '" + baseUrl + "'}");
+            var response = blockIo.WithdrawFromDtrustAddress(JsonConvert.SerializeObject(dTrustRequestBodyContent));
+            Assert.AreEqual("success", response.Status);
+            Assert.IsNotNull(response.Data);
+        }
+
     }
 }
