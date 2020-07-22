@@ -214,7 +214,10 @@ namespace BlockIoLib
                     }
                 }
                 KeyFromWif = null;
-                return _request(Method, "sign_and_finalize_sweep", res.Data.ToString());
+
+                dynamic signAndFinalizeRequestJson = new { res.Data.reference_id, res.Data.inputs };
+
+                return _request(Method, "sign_and_finalize_sweep", JsonConvert.SerializeObject(signAndFinalizeRequestJson));
             }
             catch (Exception ex)
             {

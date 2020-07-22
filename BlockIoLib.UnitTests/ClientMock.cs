@@ -119,7 +119,7 @@ namespace BlockIoLib.UnitTests
                 Request.Create()
                   .WithPath("/api/v2/sign_and_finalize_sweep")
                   .UsingPost()
-                  .WithBody(new JsonMatcher(new { signature_data = signAndSweepRequest.ToString() }))
+                  .WithBody(new JsonMatcher(new { signature_data = JsonConvert.SerializeObject(signAndSweepRequest) }))
                   )
                   .RespondWith(
                     Response.Create()
