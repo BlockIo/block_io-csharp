@@ -141,30 +141,30 @@ namespace BlockIoLib
                 string pin = argsObj.pin != null ? argsObj.pin : this.Pin;
                 argsObj.pin = "";
                 Task<BlockIoResponse<dynamic>> RequestTask = _request(Method, Path, args);
-                 res = RequestTask.Result;
-                if(res.Status == "fail" || res.Data.reference_id == null
-                || res.Data.encrypted_passphrase == null || res.Data.encrypted_passphrase.passphrase == null) 
+                res = RequestTask.Result;
+                if (res.Status == "fail" || res.Data.reference_id == null
+                || res.Data.encrypted_passphrase == null || res.Data.encrypted_passphrase.passphrase == null)
                     return RequestTask;
 
                 if (pin == null)
                 {
-                    if(this.Options.allowNoPin == true)
+                    if (this.Options.allowNoPin == true)
                     {
                         return RequestTask;
                     }
                     throw new Exception("Public key mismatch. Invalid Secret PIN detected.");
                 }
-                
+
                 string enrypted_passphrase = res.Data.encrypted_passphrase.passphrase;
-                string aesKey = this.AesKey != null ? this.AesKey: Helper.PinToAesKey(pin);
+                string aesKey = this.AesKey != null ? this.AesKey : Helper.PinToAesKey(pin);
                 Key privKey = new Key().ExtractKeyFromEncryptedPassphrase(enrypted_passphrase, aesKey);
                 string pubKey = privKey.PubKey.ToHex();
                 if (pubKey != res.Data.encrypted_passphrase.signer_public_key.ToString())
                     throw new Exception("Public key mismatch. Invalid Secret PIN detected.");
 
-                foreach(dynamic input in res.Data.inputs)
+                foreach (dynamic input in res.Data.inputs)
                 {
-                    foreach(dynamic signer in input.signers)
+                    foreach (dynamic signer in input.signers)
                     {
                         signer.signed_data = Helper.SignInputs(privKey, input.data_to_sign.ToString(), pubKey);
                     }
@@ -172,7 +172,10 @@ namespace BlockIoLib
 
                 aesKey = "";
                 privKey = null;
-                return _request(Method, "sign_and_finalize_withdrawal", res.Data.ToString());
+
+                dynamic signAndFinalizeRequestJson = new { res.Data.reference_id, res.Data.inputs };
+
+                return _request(Method, "sign_and_finalize_withdrawal", JsonConvert.SerializeObject(signAndFinalizeRequestJson));
             }
             catch (Exception ex)
             {

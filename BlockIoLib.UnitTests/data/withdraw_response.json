@@ -27,6 +27,18 @@
             "signed_data": null
           }
         ]
+      },
+      {
+        "input_no": 2,
+        "signatures_needed": 1,
+        "data_to_sign": "7bdcbb1a0c0d257fecfe638499f06fae6c686f7103595703330782cd6bf64f52",
+        "signers": [
+          {
+            "signer_address": "ng8SXuwBoPk7A8MXsNBMS6DMkFNNPCSZdL",
+            "signer_public_key": "029774ca6d07e17faeac23f4075b680ddc8ee24d3214980e79ca5a5842f6828ff1",
+            "signed_data": null
+          }
+        ]
       }
     ],
     "encrypted_passphrase": {

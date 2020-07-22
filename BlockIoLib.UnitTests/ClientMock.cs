@@ -72,7 +72,7 @@ namespace BlockIoLib.UnitTests
                 Request.Create()
                   .WithPath("/api/v2/sign_and_finalize_withdrawal")
                   .UsingPost()
-                  .WithBody(new JsonMatcher(new { signature_data = signAndWithdrawalRequest.ToString() }))
+                  .WithBody(new JsonMatcher(new { signature_data = JsonConvert.SerializeObject(signAndWithdrawalRequest) }))
                   )
                   .RespondWith(
                     Response.Create()
