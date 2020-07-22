@@ -25,6 +25,7 @@ namespace BlockIoLib.UnitTests
         private static object sweepRequestBodyContent;
         private static object dTrustRequestBodyContent;
         private static object sweepResponse;
+        private static object withdrawResponse;
         private static dynamic signAndWithdrawalRequest;
         private static dynamic signAndSweepRequest;
         private static dynamic signAndDtrustRequest;
@@ -37,6 +38,18 @@ namespace BlockIoLib.UnitTests
             var port = new Random().Next(5000, 6000);
             baseUrl = "http://localhost:" + port + "/api/v2";
             
+
+            stub = FluentMockServer.Start(new FluentMockServerSettings
+            {
+                Urls = new[] { "http://+:" + port }
+            });
+
+            using (StreamReader r = new StreamReader("./data/withdraw_response.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                withdrawResponse = JsonConvert.DeserializeObject(json);
+            }
+
             using (StreamReader r = new StreamReader("./data/sign_and_finalize_withdrawal_request.json"))
             {
                 string json = r.ReadToEnd().Replace(" ", "");
@@ -45,11 +58,15 @@ namespace BlockIoLib.UnitTests
                 signAndWithdrawalRequest = JsonConvert.DeserializeObject(signAndWithdrawalRequest);
             }
 
-            stub = FluentMockServer.Start(new FluentMockServerSettings
-            {
-                Urls = new[] { "http://+:" + port },
-                ReadStaticMappings = true
-            });
+            stub.Given(
+                Request.Create()
+                  .WithPath("/api/v2/withdraw")
+                  )
+                  .RespondWith(
+                    Response.Create()
+                        .WithStatusCode(200)
+                        .WithHeader("Content-Type", "application/json")
+                        .WithBodyAsJson(withdrawResponse));
 
             stub.Given(
                 Request.Create()
@@ -74,11 +91,20 @@ namespace BlockIoLib.UnitTests
             var wif = "cTYLVcC17cYYoRjaBu15rEcD5WuDyowAw562q2F1ihcaomRJENu5";
             var key = new Key().FromWif(wif);
             sweepRequestBodyContent = new { to_address = "QhSWVppS12Fqv6dh3rAyoB18jXh5mB1hoC", from_address = "tltc1qpygwklc39wl9p0wvlm0p6x42sh9259xdjl059s", private_key = wif };
+
             using (StreamReader r = new StreamReader("./data/sweep_from_address_response.json"))
             {
                 string json = r.ReadToEnd().Replace(" ", "");
                 sweepResponse = JsonConvert.DeserializeObject(json);
             }
+            using (StreamReader r = new StreamReader("./data/sign_and_finalize_sweep_request.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                signAndSweepRequest = JsonConvert.DeserializeObject(json);
+                signAndSweepRequest = signAndSweepRequest.signature_data.ToString();
+                signAndSweepRequest = JsonConvert.DeserializeObject(signAndSweepRequest);
+            }
+
             stub.Given(
                 Request.Create()
                   .WithPath("/api/v2/sweep_from_address")
@@ -88,14 +114,6 @@ namespace BlockIoLib.UnitTests
                         .WithStatusCode(200)
                         .WithHeader("Content-Type", "application/json")
                         .WithBodyAsJson(sweepResponse));
-
-            using (StreamReader r = new StreamReader("./data/sign_and_finalize_sweep_request.json"))
-            {
-                string json = r.ReadToEnd().Replace(" ", "");
-                signAndSweepRequest = JsonConvert.DeserializeObject(json);
-                signAndSweepRequest = signAndSweepRequest.signature_data.ToString();
-                signAndSweepRequest = JsonConvert.DeserializeObject(signAndSweepRequest);
-            }
 
             stub.Given(
                 Request.Create()
@@ -124,6 +142,15 @@ namespace BlockIoLib.UnitTests
                 string json = r.ReadToEnd().Replace(" ", "");
                 withdrawFromDtrustAddressResponse = JsonConvert.DeserializeObject(json);
             }
+
+            using (StreamReader r = new StreamReader("./data/sign_and_finalize_sweep_request.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                signAndDtrustRequest = JsonConvert.DeserializeObject(json);
+                signAndDtrustRequest = signAndDtrustRequest.signature_data.ToString();
+                signAndDtrustRequest = JsonConvert.DeserializeObject(signAndDtrustRequest);
+            }
+
             stub.Given(
                 Request.Create()
                   .WithPath("/api/v2/withdraw_from_dtrust_address")
@@ -133,14 +160,6 @@ namespace BlockIoLib.UnitTests
                         .WithStatusCode(200)
                         .WithHeader("Content-Type", "application/json")
                         .WithBodyAsJson(withdrawFromDtrustAddressResponse));
-
-            using (StreamReader r = new StreamReader("./data/sign_and_finalize_sweep_request.json"))
-            {
-                string json = r.ReadToEnd().Replace(" ", "");
-                signAndDtrustRequest = JsonConvert.DeserializeObject(json);
-                signAndDtrustRequest = signAndDtrustRequest.signature_data.ToString();
-                signAndDtrustRequest = JsonConvert.DeserializeObject(signAndDtrustRequest);
-            }
 
             stub.Given(
                 Request.Create()
