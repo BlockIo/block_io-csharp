@@ -3,6 +3,12 @@
 
 This C# library is the official reference client for the Block.io payments API and uses .NET core version 3. To use this, you will need the Dogecoin, Bitcoin, or Litecoin API key(s) from <a href="https://block.io" target="_blank">Block.io</a>. Go ahead, sign up :)
 
+## Installation
+
+1. Clone the repo
+2. dotnet restore
+3. dotnet run --project ./BlockIoLib
+
 ## Usage
 
 It's super easy to get started. In your code, do this:
