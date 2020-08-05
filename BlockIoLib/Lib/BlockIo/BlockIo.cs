@@ -185,7 +185,7 @@ namespace BlockIoLib
                     signature_data = args
                 });
             }
-            var response = await RestClient.ExecutePostAsync(request);
+            var response = Method == "POST" ? await RestClient.ExecutePostAsync(request) : await RestClient.ExecuteGetAsync(request);
 
             return GetData<BlockIoResponse<dynamic>>(response);
         }

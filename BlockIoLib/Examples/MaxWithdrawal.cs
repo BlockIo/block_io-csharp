@@ -30,13 +30,13 @@ namespace BlockIoLib.Examples
 
             while (true)
             {
-                var res = blockIo.Withdraw("{to_address: '" + envReader.GetStringValue("TO_ADDRESS") + "', amount: " + balance + "}");
+                var res = blockIo.Withdraw(new { to_address= envReader.GetStringValue("TO_ADDRESS"), amount=balance.ToString() });
                 double maxWithdraw = res.Data.max_withdrawal_available;
 
                 Console.WriteLine("Max Withdraw Available: " + maxWithdraw.ToString());
 
                 if (maxWithdraw == 0) break;
-                blockIo.Withdraw("{to_address: '" + envReader.GetStringValue("TO_ADDRESS") + "', amount: " + maxWithdraw + "}");
+                blockIo.Withdraw(new { to_address= envReader.GetStringValue("TO_ADDRESS") , amount=maxWithdraw.ToString() });
             }
 
             balance = blockIo.GetBalance().Data.available_balance;
