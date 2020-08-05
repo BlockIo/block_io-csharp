@@ -95,15 +95,20 @@ namespace BlockIoLib
         }
 
 
-        private Task<BlockIoResponse<dynamic>> _withdraw(string Method, string Path, string args)
+        private Task<BlockIoResponse<dynamic>> _withdraw(string Method, string Path, dynamic args)
         {
             BlockIoResponse<dynamic> res = null;
             try
             {
-                dynamic argsObj = JsonConvert.DeserializeObject(args);
-                string pin = argsObj.pin != null ? argsObj.pin : this.Pin;
-                argsObj.pin = "";
-                Task<BlockIoResponse<dynamic>> RequestTask = _request(Method, Path, args);
+                dynamic argsObj = args;
+                string pin;
+                if (argsObj.GetType().GetProperty("pin") != null)
+                {
+                    pin = argsObj.pin;
+                    argsObj.pin = "";
+                }
+                else pin = this.Pin;
+                Task<BlockIoResponse<dynamic>> RequestTask = _request(Method, Path, argsObj);
                 res = RequestTask.Result;
                 if (res.Status == "fail" || res.Data.reference_id == null
                 || res.Data.encrypted_passphrase == null || res.Data.encrypted_passphrase.passphrase == null)
@@ -146,13 +151,13 @@ namespace BlockIoLib
             }
         }
 
-        private Task<BlockIoResponse<dynamic>> _sweep(string Method, string Path, string args)
+        private Task<BlockIoResponse<dynamic>> _sweep(string Method, string Path, dynamic args)
         {
             Key KeyFromWif = null;
             BlockIoResponse<dynamic> res = null;
             try
             {
-                dynamic argsObj = JsonConvert.DeserializeObject(args);
+                dynamic argsObj = args;
 
                 if(argsObj.to_address == null)
                 {
@@ -163,7 +168,7 @@ namespace BlockIoLib
                 KeyFromWif = new Key().FromWif(PrivKeyStr);
                 argsObj.public_key = KeyFromWif.PubKey.ToHex();
                 argsObj.private_key = "";
-                args = JsonConvert.SerializeObject(argsObj);
+                args = argsObj;
 
                 Task<BlockIoResponse<dynamic>> RequestTask = _request(Method, Path, args);
                 res = RequestTask.Result;
@@ -180,7 +185,7 @@ namespace BlockIoLib
 
                 dynamic signAndFinalizeRequestJson = new { res.Data.reference_id, res.Data.inputs };
 
-                return _request(Method, "sign_and_finalize_sweep", JsonConvert.SerializeObject(signAndFinalizeRequestJson));
+                return _request(Method, "sign_and_finalize_sweep", signAndFinalizeRequestJson);
             }
             catch (Exception ex)
             {
@@ -193,7 +198,7 @@ namespace BlockIoLib
             return _request("GET", "get_balance").Result;
         }
 
-        private async Task<BlockIoResponse<dynamic>> _request(string Method, string Path, string args="{}")
+        private async Task<BlockIoResponse<dynamic>> _request(string Method, string Path, dynamic args=null)
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
@@ -201,29 +206,17 @@ namespace BlockIoLib
 
             if (Method == "POST" && !Path.Contains("sign_and_finalize"))
             {
-                string queryString = JsonToQuery(args);
-                if (args != "{}" )
-                {
-                    string[] querySegments = queryString.Split('&');
-                    foreach (string segment in querySegments)
-                    {
-                        string[] parts = segment.Split('=');
-                        if (parts.Length > 0)
-                        {
-                            string key = parts[0].Trim(new char[] { '?', ' ' });
-                            string val = parts[1].Trim();
-                            request.AddParameter(key, val, ParameterType.QueryString);
-                        }
-                    }
-                }
+                Console.WriteLine("args: " + args);
+                request.AddJsonBody(args);
             }
             else
             {
                 request.AddJsonBody(new { 
-                    signature_data = args
+                    signature_data = JsonConvert.DeserializeObject(args)
                 });
             }
-            var response = !Path.Contains("sign_and_finalize") ? await RestClient.ExecuteGetAsync(request) : await RestClient.ExecutePostAsync(request);
+            request.AddHeader("Content-Type", "application/json; charset=utf-8");
+            var response = await RestClient.ExecutePostAsync(request);
 
             return GetData<BlockIoResponse<dynamic>>(response);
         }

@@ -23,12 +23,12 @@ namespace BlockIoLib.Examples
 
         public void RunBasicExample()
         {
-            Console.WriteLine("Get New Address: " + blockIo.GetNewAddress("{\"label\": \"testDest2\"}").Data);
-            Console.WriteLine("Withdraw from labels: " + blockIo.WithdrawFromLabels("{\"from_labels\": \"default\", \"to_label\": \"testDest2\", \"amount\": \"0.001\"}").Data);
-            Console.WriteLine("Get Address Balance: " + blockIo.GetAddressBalance("{\"labels\": \"default, testDest2\"]}").Data);
-            Console.WriteLine("Get Sent Transactions: " + blockIo.GetTransactions("{\"type\": \"sent\"}").Data);
-            Console.WriteLine("Get Received Transactions: " + blockIo.GetTransactions("{\"type\": \"received\"}").Data);
-            Console.WriteLine("Get Current Price: " + blockIo.GetCurrentPrice("{\"base_price\": \"BTC\"}").Data);
+            Console.WriteLine("Get New Address: " + blockIo.GetNewAddress(new { label = "testDest2" }).Data);
+            Console.WriteLine("Withdraw from labels: " + blockIo.WithdrawFromLabels(new { from_labels = "default", to_label = "testDest2", amount = "0.00061440" }).Data);
+            //Console.WriteLine("Get Address Balance: " + blockIo.GetAddressBalance(new { labels = "default,testDest2" }).Data);
+            //Console.WriteLine("Get Sent Transactions: " + blockIo.GetTransactions(new { type = "sent" }).Data);
+            //Console.WriteLine("Get Received Transactions: " + blockIo.GetTransactions(new { type = "received" }).Data);
+            //Console.WriteLine("Get Current Price: " + blockIo.GetCurrentPrice(new { base_price = "BTC" }).Data);
         }
     }
 }

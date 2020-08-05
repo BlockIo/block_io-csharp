@@ -6,6 +6,6 @@ namespace BlockIoLib
 {
     public partial class BlockIo
     {
-        public BlockIoResponse<dynamic> SweepFromAddress(string args = "{}") { return _sweep("POST", "sweep_from_address", args).Result; }
+        public BlockIoResponse<dynamic> SweepFromAddress(dynamic args = null) { return _sweep("POST", "sweep_from_address", args).Result; }
     }
 }

@@ -13,7 +13,6 @@ namespace BlockIoLib
 
             Basic basicEx = new Basic();
             basicEx.RunBasicExample();
-
         }
     }
 }
