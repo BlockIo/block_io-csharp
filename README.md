@@ -7,7 +7,16 @@ This C# library is the official reference client for the Block.io payments API a
 
 It's super easy to get started. In your code, do this:
 
-    BlockIo blockLib = new BlockIo(API_KEY, PIN);
+    BlockIo blockLib = new BlockIo(API_KEY, PIN, VERSION);
+
+    // to pass options:
+
+    BlockIo blockLib = new BlockIo(API_KEY, PIN, VERSION, new Dictionary<string, string>()
+            {
+                { "api_url", "url" },
+                { "version", "2" },
+                { "option3", "option" }
+            })
 
     // print the account balance request's response
     var data = blockLib.GetBalance().Data;

@@ -18,13 +18,16 @@ namespace BlockIoLib.Examples
             DotEnv.Config(true, path, Encoding.Unicode, false);
             var envReader = new EnvReader();
 
-            blockIo = new BlockIo(envReader.GetStringValue("API_KEY"), envReader.GetStringValue("PIN"), 2,
-                                  "{proxy: {" +
-                                  "  hostname: '" + envReader.GetStringValue("PROXY_HOST") + 
-                                  "', port: '" + envReader.GetStringValue("PROXY_PORT") + 
-                                  "', username: '" + envReader.GetStringValue("PROXY_USER") + 
-                                  "', password: '" + envReader.GetStringValue("PROXY_PASSWORD") + 
-                                  "'}}");
+            blockIo = new BlockIo(envReader.GetStringValue("API_KEY"), envReader.GetStringValue("PIN"), 2, new Dictionary<string, string>()
+            {
+                {
+                    "proxy", "{" + "  hostname: '" + envReader.GetStringValue("PROXY_HOST") +
+                                  "', port: '" + envReader.GetStringValue("PROXY_PORT") +
+                                  "', username: '" + envReader.GetStringValue("PROXY_USER") +
+                                  "', password: '" + envReader.GetStringValue("PROXY_PASSWORD") +
+                                  "'}"
+                }
+            });
         }
 
         public void RunProxyExample()

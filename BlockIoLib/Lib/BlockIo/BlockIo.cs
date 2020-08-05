@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -25,7 +26,7 @@ namespace BlockIoLib
         private readonly RestClient RestClient;
         private readonly string ApiUrl;
 
-        private dynamic Options;
+        private Dictionary<string, string> Options;
         private string ApiKey { get; set; }
         private int Version { get; set; }
         private string Server { get; set; }
@@ -38,62 +39,23 @@ namespace BlockIoLib
         private string DefaultPort = "";
         private string Host = "block.io";
 
-        public BlockIo(string Config, string Pin = null, int Version = 2, string Options = null)
+        public BlockIo(string ApiKey, string Pin = null, int Version = 2, dynamic Options = null)
         {
-            this.Options = JsonConvert.DeserializeObject("{allowNoPin: false}");
+            this.Options = Options != null ? Options : new Dictionary<string, string>();
+            this.Options.Add("allowNoPin", "false");
+            ApiUrl = (string)(this.Options.ContainsKey("api_url") ? this.Options["api_url"] : "");
             this.ApiUrl = "";
             this.Pin = Pin;
             this.AesKey = null;
-            dynamic ConfigObj;
-            try
+
+            this.ApiKey = ApiKey;
+            if (Version == -1) this.Version = this.DefaultVersion; else this.Version = Version;
+            this.Server = this.DefaultServer;
+            this.Port = this.DefaultPort;
+            if (Pin != null)
             {
-                //config is an obj
-
-                ConfigObj = JsonConvert.DeserializeObject(Config);
-                ApiKey = ConfigObj.api_key;
-                if (ConfigObj.version != null) this.Version = ConfigObj.version; else this.Version = this.DefaultVersion;
-                if (ConfigObj.server != null) this.Server = ConfigObj.server; else this.Server = this.DefaultServer;
-                if (ConfigObj.port != null) this.Port = ConfigObj.port; else this.Port = this.DefaultPort;
-
-                if(ConfigObj.pin != null)
-                {
-                    this.Pin = ConfigObj.pin;
-                    this.AesKey = Helper.PinToAesKey(this.Pin);
-                }
-                if(ConfigObj.options != null)
-                {
-                    this.Options = ConfigObj.options;
-                    this.Options.allowNoPin = false;
-                }
-            }
-            catch(Exception ex)
-            {
-                //config is a string, not an obj
-
-                ApiKey = Config;
-                if (Version == -1) this.Version = this.DefaultVersion; else this.Version = Version;
-                this.Server = this.DefaultServer;
-                this.Port = this.DefaultPort;
-                if (Pin != null)
-                {
-                    this.Pin = Pin;
-                    this.AesKey = Helper.PinToAesKey(this.Pin);
-                }
-            }
-
-            if (Options != null)
-            {
-                try
-                {
-                    this.Options = JsonConvert.DeserializeObject(Options);
-                    
-                    this.Options.allowNoPin = false;
-                    ApiUrl = this.Options.api_url != null ? this.Options.api_url : "";
-                }
-                catch (Exception ex2)
-                {
-                    //Options is a string, not an obj: Do nothing
-                }
+                this.Pin = Pin;
+                this.AesKey = Helper.PinToAesKey(this.Pin);
             }
 
             string ServerString = Server != "" ? Server + "." : Server;  // eg: 'dev.'
@@ -101,8 +63,9 @@ namespace BlockIoLib
 
             ApiUrl = ApiUrl == "" ? "https://" + ServerString + Host + PortString + "/api/v" + Version.ToString() : ApiUrl;
 
-            RestClient = new RestClient(ApiUrl) { Authenticator = new BlockIoAuthenticator(ApiKey) };
+            RestClient = new RestClient(ApiUrl) { Authenticator = new BlockIoAuthenticator(this.ApiKey) };
         }
+
         private string JsonToQuery(string jsonQuery)
         {
             jsonQuery = jsonQuery.Replace(":", "=").Replace("{", "").
@@ -148,7 +111,7 @@ namespace BlockIoLib
 
                 if (pin == null)
                 {
-                    if (this.Options.allowNoPin == true)
+                    if ((string)this.Options["allowNoPin"] == "true")
                     {
                         return RequestTask;
                     }
