@@ -22,9 +22,9 @@ namespace BlockIoLib.UnitTests
         private static WireMockServer stub;
         private static string baseUrl;
 
-        private static object withdrawRequestBodyContent;
-        private static object sweepRequestBodyContent;
-        private static object dTrustRequestBodyContent;
+        private static dynamic withdrawRequestBodyContent;
+        private static dynamic sweepRequestBodyContent;
+        private static dynamic dTrustRequestBodyContent;
         private static object sweepResponse;
         private static object withdrawResponse;
         private static dynamic signAndWithdrawalRequest;
@@ -198,7 +198,7 @@ namespace BlockIoLib.UnitTests
                     "api_url", baseUrl
                 } });
 
-            var response = blockIo.Withdraw(JsonConvert.SerializeObject(withdrawRequestBodyContent));
+            var response = blockIo.Withdraw(withdrawRequestBodyContent);
             Assert.AreEqual("success", response.Status);
             Assert.IsNotNull(response.Data);
         }
@@ -208,7 +208,7 @@ namespace BlockIoLib.UnitTests
             blockIo = new BlockIo(api_key, null, 2, new Dictionary<string, string>() { {
                     "api_url", baseUrl
                 } });
-            var response = blockIo.SweepFromAddress(JsonConvert.SerializeObject(sweepRequestBodyContent));
+            var response = blockIo.SweepFromAddress(sweepRequestBodyContent);
             Assert.AreEqual("success", response.Status);
             Assert.IsNotNull(response.Data);
         }
@@ -220,7 +220,7 @@ namespace BlockIoLib.UnitTests
             blockIo = new BlockIo(api_key, pin, 2, new Dictionary<string, string>() { {
                     "api_url", baseUrl
                 } });
-            var response = blockIo.WithdrawFromDtrustAddress(JsonConvert.SerializeObject(dTrustRequestBodyContent));
+            var response = blockIo.WithdrawFromDtrustAddress(dTrustRequestBodyContent);
             Assert.AreEqual("success", response.Status);
             Assert.IsNotNull(response.Data);
         }

@@ -66,35 +66,6 @@ namespace BlockIoLib
             RestClient = new RestClient(ApiUrl) { Authenticator = new BlockIoAuthenticator(this.ApiKey) };
         }
 
-        private string JsonToQuery(string jsonQuery)
-        {
-            jsonQuery = jsonQuery.Replace(":", "=").Replace("{", "").
-                        Replace("}", "").Replace(",", "&").
-                            Replace("\"", "").Replace(" ", "").Replace("'", "");
-
-            int lastAmpercant = -1;
-
-            for(int i=0; i<jsonQuery.Length; i++)
-            {
-                // need to handle ',' within a json array
-                //'&' will always come after '=' if at all in a query string
-                if (jsonQuery[i] == '&')
-                {
-                    lastAmpercant = i;
-                    jsonQuery = jsonQuery.Remove(i, 1).Insert(i, ",");
-                }
-                if (jsonQuery[i] == '=')
-                {
-                    if (lastAmpercant != -1)
-                    {
-                        jsonQuery = jsonQuery.Remove(lastAmpercant, 1).Insert(lastAmpercant, "&");
-                    }
-                }
-            }
-            return jsonQuery.Replace("[", "").Replace("]", "");
-        }
-
-
         private Task<BlockIoResponse<dynamic>> _withdraw(string Method, string Path, dynamic args)
         {
             BlockIoResponse<dynamic> res = null;
@@ -104,8 +75,7 @@ namespace BlockIoLib
                 string pin;
                 if (argsObj.GetType().GetProperty("pin") != null)
                 {
-                    pin = argsObj.pin;
-                    argsObj.pin = "";
+                    pin = argsObj.GetType().GetProperty("pin").GetValue(argsObj, null);
                 }
                 else pin = this.Pin;
                 Task<BlockIoResponse<dynamic>> RequestTask = _request(Method, Path, argsObj);
@@ -157,17 +127,18 @@ namespace BlockIoLib
             BlockIoResponse<dynamic> res = null;
             try
             {
-                dynamic argsObj = args;
+                var argsObj = args;
 
-                if(argsObj.to_address == null)
+                if(argsObj.GetType().GetProperty("to_address") == null)
                 {
                     throw new Exception("Missing mandatory private_key argument.");
                 }
 
-                string PrivKeyStr = argsObj.private_key.ToString();
+                string PrivKeyStr = argsObj.GetType().GetProperty("private_key").GetValue(argsObj, null);
                 KeyFromWif = new Key().FromWif(PrivKeyStr);
-                argsObj.public_key = KeyFromWif.PubKey.ToHex();
-                argsObj.private_key = "";
+                string to_address = argsObj.GetType().GetProperty("to_address").GetValue(argsObj, null);
+                string from_address = argsObj.GetType().GetProperty("from_address").GetValue(argsObj, null);
+                argsObj = new { to_address, from_address, public_key = KeyFromWif.PubKey.ToHex() };
                 args = argsObj;
 
                 Task<BlockIoResponse<dynamic>> RequestTask = _request(Method, Path, args);
@@ -185,7 +156,7 @@ namespace BlockIoLib
 
                 dynamic signAndFinalizeRequestJson = new { res.Data.reference_id, res.Data.inputs };
 
-                return _request(Method, "sign_and_finalize_sweep", signAndFinalizeRequestJson);
+                return _request(Method, "sign_and_finalize_sweep", JsonConvert.SerializeObject(signAndFinalizeRequestJson));
             }
             catch (Exception ex)
             {
@@ -206,16 +177,14 @@ namespace BlockIoLib
 
             if (Method == "POST" && !Path.Contains("sign_and_finalize"))
             {
-                Console.WriteLine("args: " + args);
                 request.AddJsonBody(args);
             }
             else
             {
                 request.AddJsonBody(new { 
-                    signature_data = JsonConvert.DeserializeObject(args)
+                    signature_data = args
                 });
             }
-            request.AddHeader("Content-Type", "application/json; charset=utf-8");
             var response = await RestClient.ExecutePostAsync(request);
 
             return GetData<BlockIoResponse<dynamic>>(response);
