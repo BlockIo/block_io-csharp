@@ -11,8 +11,8 @@ namespace BlockIoLib
              * Examples
              */
 
-            Basic basicEx = new Basic();
-            basicEx.RunBasicExample();
+            DTrust dTrustEx = new DTrust();
+            dTrustEx.RunDtrustExample();
         }
     }
 }

@@ -45,12 +45,12 @@ namespace BlockIoLib.Examples
         public void RunDtrustExample()
         {
             string signers = string.Join(",", PublicKeys);
-            var res = blockIo.GetNewDtrustAddress("{label: '" + DtrustAddressLabel + "', public_keys: '" + signers + "', required_signatures: 3, address_type: 'witness_v0'}");
+            var res = blockIo.GetNewDtrustAddress(new { label=DtrustAddressLabel, public_keys = signers, required_signatures="3", address_type= "witness_v0" });
             if(res.Status != "success"){
                 Console.WriteLine("Error: " + res.Data);
                 // if this failed, we probably created the same label before. let's fetch the address then
 
-                res = blockIo.GetDtrustAddressByLabel("{label: '" + DtrustAddressLabel + "'}");
+                res = blockIo.GetDtrustAddressByLabel(new { label=DtrustAddressLabel});
                 DtrustAddress = res.Data.address;
             }
             else{
@@ -58,17 +58,17 @@ namespace BlockIoLib.Examples
             }
             Console.WriteLine("Our dTrust Address: " + DtrustAddress);
 
-            res = blockIo.WithdrawFromLabels("{from_labels: 'default', to_address: '" + DtrustAddress + "', amounts: 0.001}");
+            res = blockIo.WithdrawFromLabels(new { from_labels="default", to_address=DtrustAddress, amounts="0.0002"});
             Console.WriteLine("Withdrawal Response: " + res.Data);
 
-            res = blockIo.GetDtrustAddressBalance("{label: '" + DtrustAddressLabel + "'}");
+            res = blockIo.GetDtrustAddressBalance(new { label=DtrustAddressLabel});
             Console.WriteLine("Dtrust address label Balance: " + res.Data);
 
-            var normalAddress = blockIo.GetAddressByLabel("{label: 'default'}").Data.address;
+            var normalAddress = blockIo.GetAddressByLabel(new { label="default"}).Data.address.ToString();
 
             Console.WriteLine("Withdrawing from dtrust_address_label to the 'default' label in normal multisig");
 
-            res = blockIo.WithdrawFromDtrustAddress("{from_labels: '" + DtrustAddressLabel + "', to_address: '" + normalAddress + "', amounts: 0.0009}");
+            res = blockIo.WithdrawFromDtrustAddress(new { from_labels=DtrustAddressLabel, to_address=normalAddress, amounts="0.0002"});
 
             Console.WriteLine("Withdraw from Dtrust Address response: " + res.Data);
 
@@ -86,7 +86,7 @@ namespace BlockIoLib.Examples
             Console.WriteLine("Finalize Withdrawal: " );
             Console.WriteLine(blockIo.SignAndFinalizeWithdrawal(res.Data.ToString()).Data);
             Console.WriteLine("Get transactions sent by our dtrust_address_label address: ");
-            Console.WriteLine(blockIo.GetDtrustTransactions("{type: 'sent', labels: '" + DtrustAddressLabel + "'}").Data);
+            Console.WriteLine(blockIo.GetDtrustTransactions(new { type="sent", labels=DtrustAddressLabel}).Data);
             
         }
     }
