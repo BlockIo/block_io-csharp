@@ -24,11 +24,11 @@ namespace BlockIoLib.Examples
 
         public void RunSweeperExample()
         {
-            var res = blockIo.SweepFromAddress("{" +
-                                  "  to_address: '" + envReader.GetStringValue("TO_ADDRESS") +
-                                  "', private_key: '" + envReader.GetStringValue("PRIVATE_KEY_FROM_ADDRESS") +
-                                  "', from_addresss: '" + envReader.GetStringValue("FROM_ADDRESS") +
-                                  "'}");
+            var res = blockIo.SweepFromAddress(new {
+                to_address= envReader.GetStringValue("TO_ADDRESS"),
+                private_key= envReader.GetStringValue("PRIVATE_KEY_FROM_ADDRESS"),
+                from_address= envReader.GetStringValue("FROM_ADDRESS")
+            });
 
             if (res.Status == "success") {
                 Console.WriteLine("Sweep Res: " + res.Data);

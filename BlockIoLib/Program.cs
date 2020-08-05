@@ -11,8 +11,8 @@ namespace BlockIoLib
              * Examples
              */
 
-            Proxy dTrustEx = new Proxy();
-            dTrustEx.RunProxyExample();
+            Sweeper dTrustEx = new Sweeper();
+            dTrustEx.RunSweeperExample();
         }
     }
 }

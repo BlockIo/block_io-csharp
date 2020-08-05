@@ -31,18 +31,18 @@ It's super easy to get started. In your code, do this:
     // 'SECRET_PIN' is only required if you did not specify it at 
     // class initialization time.
     var data = blockLib.Withdraw(
-    "{ 
-        pin: 'SECRET_PIN', 
-        from_labels: 'label1,label2', 
-        to_label: 'label3', 
-        amount: '50.0' 
-    }").Data;   
+        new {
+            pin="secret_pin",
+            from_labels="label1, label2",
+            to_label="label3",
+            amount="50.0"
+        }).Data;   
 
 ##### A note on passing json args to requests:
 
-Args are in JSON format and need to be passed like this: 
+Args are passed as objects like this: 
 
-    "{param1: 'stringValue', param2: intValue, param3: ['this', 'is', 'a', 'list', 'of', 'strings']}"
+    new { param1="string", param2="intVal", param3="this,is,a,list"}
 
 ## Testing
 
