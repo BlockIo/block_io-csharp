@@ -11,8 +11,8 @@ namespace BlockIoLib
              * Examples
              */
 
-            MaxWithdrawal dTrustEx = new MaxWithdrawal();
-            dTrustEx.RunMaxWithdrawalExample();
+            Proxy dTrustEx = new Proxy();
+            dTrustEx.RunProxyExample();
         }
     }
 }
