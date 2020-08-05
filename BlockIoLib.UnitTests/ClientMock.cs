@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using RestSharp;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using WireMock;
 using WireMock.Matchers;
@@ -193,7 +194,9 @@ namespace BlockIoLib.UnitTests
         public void Withdraw()
         {
             pin = "blockiotestpininsecure";
-            blockIo = new BlockIo(api_key, pin, 2, "{api_url: '" + baseUrl + "'}");
+            blockIo = new BlockIo(api_key, pin, 2, new Dictionary<string, string>() { {
+                    "api_url", baseUrl
+                } });
 
             var response = blockIo.Withdraw(JsonConvert.SerializeObject(withdrawRequestBodyContent));
             Assert.AreEqual("success", response.Status);
@@ -202,7 +205,9 @@ namespace BlockIoLib.UnitTests
         [Test]
         public void Sweep()
         {
-            blockIo = new BlockIo(api_key, null, 2, "{api_url: '" + baseUrl + "'}");
+            blockIo = new BlockIo(api_key, null, 2, new Dictionary<string, string>() { {
+                    "api_url", baseUrl
+                } });
             var response = blockIo.SweepFromAddress(JsonConvert.SerializeObject(sweepRequestBodyContent));
             Assert.AreEqual("success", response.Status);
             Assert.IsNotNull(response.Data);
@@ -212,7 +217,9 @@ namespace BlockIoLib.UnitTests
         public void Dtrust()
         {
             pin = "blockiotestpininsecure";
-            blockIo = new BlockIo(api_key, pin, 2, "{api_url: '" + baseUrl + "'}");
+            blockIo = new BlockIo(api_key, pin, 2, new Dictionary<string, string>() { {
+                    "api_url", baseUrl
+                } });
             var response = blockIo.WithdrawFromDtrustAddress(JsonConvert.SerializeObject(dTrustRequestBodyContent));
             Assert.AreEqual("success", response.Status);
             Assert.IsNotNull(response.Data);

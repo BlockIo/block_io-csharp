@@ -43,8 +43,8 @@ namespace BlockIoLib
         {
             this.Options = Options != null ? Options : new Dictionary<string, string>();
             this.Options.Add("allowNoPin", "false");
-            ApiUrl = (string)(this.Options.ContainsKey("api_url") ? this.Options["api_url"] : "");
             this.ApiUrl = "";
+            ApiUrl = this.Options.ContainsKey("api_url") ? this.Options["api_url"] : "";
             this.Pin = Pin;
             this.AesKey = null;
 
