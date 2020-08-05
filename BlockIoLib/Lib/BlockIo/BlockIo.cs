@@ -7,20 +7,6 @@ using RestSharp;
 
 namespace BlockIoLib
 {
-    /**
-     * A note on args
-     * 
-     * args are in JSON format and need to be passed like this: 
-     * "{param1: 'stringValue', param2: intValue, param3: ['this', 'is', 'a', 'list']}"
-     * 
-     * 
-     * A note on lib method usage
-     * 
-     * BlockIo blockLib = new BlockIo("{ api_key: 'key' }");
-     * var res = blockLib.GetBalance().Data;
-     * var status = blockLib.GetBalance().Status;
-     */
-
     public partial class BlockIo
     {
         private readonly RestClient RestClient;
