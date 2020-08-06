@@ -63,8 +63,7 @@ namespace BlockIoLib
 
             Task<BlockIoResponse<dynamic>> RequestTask = _request(Method, Path, argsObj);
             res = RequestTask.Result;
-            if (res == null) throw new Exception("No response from the API server");
-
+            
             if (res.Status == "fail" || res.Data.reference_id == null
             || res.Data.encrypted_passphrase == null || res.Data.encrypted_passphrase.passphrase == null)
                 return RequestTask;
@@ -117,8 +116,6 @@ namespace BlockIoLib
             Task<BlockIoResponse<dynamic>> RequestTask = _request(Method, Path, args);
             res = RequestTask.Result;
             
-            if (res == null) throw new Exception("No response from the API server");
-            
             if (res.Data.reference_id == null)
                 return RequestTask;
             foreach (dynamic input in res.Data.inputs)
@@ -163,6 +160,8 @@ namespace BlockIoLib
         private T GetData<T>(IRestResponse response)
         {
             var data = JsonConvert.DeserializeObject<T>(response.Content);
+            if (data == null) throw new Exception("No response from the API server");
+
             return data;
         }
     }
