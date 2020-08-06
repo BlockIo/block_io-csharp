@@ -194,9 +194,7 @@ namespace BlockIoLib.UnitTests
         public void Withdraw()
         {
             pin = "blockiotestpininsecure";
-            blockIo = new BlockIo(api_key, pin, 2, new Dictionary<string, string>() { {
-                    "api_url", baseUrl
-                } });
+            blockIo = new BlockIo(api_key, pin, 2, new Options(baseUrl));
 
             var response = blockIo.Withdraw(withdrawRequestBodyContent);
             Assert.AreEqual("success", response.Status);
@@ -205,9 +203,7 @@ namespace BlockIoLib.UnitTests
         [Test]
         public void Sweep()
         {
-            blockIo = new BlockIo(api_key, null, 2, new Dictionary<string, string>() { {
-                    "api_url", baseUrl
-                } });
+            blockIo = new BlockIo(api_key, null, 2, new Options(baseUrl));
             var response = blockIo.SweepFromAddress(sweepRequestBodyContent);
             Assert.AreEqual("success", response.Status);
             Assert.IsNotNull(response.Data);
@@ -217,9 +213,7 @@ namespace BlockIoLib.UnitTests
         public void Dtrust()
         {
             pin = "blockiotestpininsecure";
-            blockIo = new BlockIo(api_key, pin, 2, new Dictionary<string, string>() { {
-                    "api_url", baseUrl
-                } });
+            blockIo = new BlockIo(api_key, pin, 2, new Options(baseUrl));
             var response = blockIo.WithdrawFromDtrustAddress(dTrustRequestBodyContent);
             Assert.AreEqual("success", response.Status);
             Assert.IsNotNull(response.Data);

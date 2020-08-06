@@ -12,7 +12,7 @@ namespace BlockIoLib
         private readonly RestClient RestClient;
         private readonly string ApiUrl;
 
-        private Dictionary<string, string> Options;
+        private Options Opts;
         private string ApiKey { get; set; }
         private int Version { get; set; }
         private string Server { get; set; }
@@ -25,12 +25,10 @@ namespace BlockIoLib
         private string DefaultPort = "";
         private string Host = "block.io";
 
-        public BlockIo(string ApiKey, string Pin = null, int Version = 2, dynamic Options = null)
+        public BlockIo(string ApiKey, string Pin = null, int Version = 2, Options Opts = null)
         {
-            this.Options = Options != null ? Options : new Dictionary<string, string>();
-            this.Options.Add("allowNoPin", "false");
-            this.ApiUrl = "";
-            ApiUrl = this.Options.ContainsKey("api_url") ? this.Options["api_url"] : "";
+            this.Opts = Opts != null ? Opts : new Options();
+            ApiUrl = this.Opts.ApiUrl;
             this.Pin = Pin;
             this.AesKey = null;
 
@@ -73,7 +71,7 @@ namespace BlockIoLib
 
             if (pin == null)
             {
-                if ((string)this.Options["allowNoPin"] == "true")
+                if (Opts.AllowNoPin)
                 {
                     return RequestTask;
                 }

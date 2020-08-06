@@ -11,8 +11,8 @@ namespace BlockIoLib
              * Examples
              */
 
-            Sweeper dTrustEx = new Sweeper();
-            dTrustEx.RunSweeperExample();
+            Basic basic = new Basic();
+            basic.RunBasicExample();
         }
     }
 }
