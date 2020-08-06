@@ -27,46 +27,16 @@ namespace BlockIoLib
 
         public static string Decrypt(string data, string key)
         {
-            string plaintext = null;
             using (AesCryptoServiceProvider csp = new AesCryptoServiceProvider())
             {
                 byte[] keyArr = Convert.FromBase64String(key);
                 byte[] KeyArrBytes32Value = new byte[32];
                 Array.Copy(keyArr, KeyArrBytes32Value, 32);
-                csp.Key = Convert.FromBase64String(key);
+                csp.Key = keyArr;
                 csp.Padding = PaddingMode.PKCS7;
                 csp.Mode = CipherMode.ECB;
                 ICryptoTransform decrypter = csp.CreateDecryptor();
-
-                // Create the streams used for decryption.
-                using (MemoryStream msDecrypt = new MemoryStream(Convert.FromBase64String(data)))
-                {
-                    using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decrypter, CryptoStreamMode.Read))
-                    {
-
-                        using (StreamReader srDecrypt = new StreamReader(csDecrypt))
-                        {
-
-                            // Read the decrypted bytes from the decrypting stream
-                            // and place them in a string.
-                            try
-                            {
-                                plaintext = srDecrypt.ReadToEnd();
-                            }
-                            
-                            catch (Exception ex)
-                            {
-                                if(ex.Message.Contains("Padding is invalid and cannot be removed."))
-                                {
-                                    throw new Exception("Pin supplied is incorrect.");
-                                }
-                                
-                            }
-                        }
-                    }
-                }
-
-                return plaintext;
+                return ASCIIEncoding.UTF8.GetString(decrypter.TransformFinalBlock(Convert.FromBase64String(data), 0, Convert.FromBase64String(data).Length));
             }
         }
 
