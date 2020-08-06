@@ -11,16 +11,15 @@ branches:
 environment:
   matrix:
     - architecture: "x86"
-      hashOne: "b9728e15-2acb-4a02-ba8e-d122bd2c497c"
-      hashTwo: "ad2258b4463a4180187b1fed0f340971"
+      hashOne: "97604f3e-88bb-457a-b1e5-039db0f4de87"
+      hashTwo: "aef2a8679512549d42691f3eb86cf7c1"
     - architecture: "x64"
-      hashOne: "874a85a8-de9b-405d-b75e-9c3e9b3ddd0d"
-      hashTwo: "eb5f33724a7ba55d47fd12b2f1f8f764"
-    
+      hashOne: "dafb4b49-9990-49aa-b8fe-9002c1a3578a"
+      hashTwo: "42acda06cb3d22d886b91aac37fda667"
 
 install:
   # Download .NET Core 2.0 Preview 2 SDK and add to PATH
-  - ps: set directory "https://download.visualstudio.microsoft.com/download/pr/$env:hashOne/$env:hashTwo/dotnet-sdk-3.0.103-win-$env:architecture.zip"
+  - ps: set directory "https://download.visualstudio.microsoft.com/download/pr/$env:hashOne/$env:hashTwo/dotnet-sdk-3.1.302-win-$env:architecture.zip"
   - ps: $urlCurrent = Get-Variable -Name directory -ValueOnly
   - ps: echo "Downloading dotnet from $urlCurrent"
   - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetsdk"
