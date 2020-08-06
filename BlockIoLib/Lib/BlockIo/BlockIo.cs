@@ -55,99 +55,86 @@ namespace BlockIoLib
         private Task<BlockIoResponse<dynamic>> _withdraw(string Method, string Path, dynamic args)
         {
             BlockIoResponse<dynamic> res = null;
-            try
+            dynamic argsObj = args;
+            string pin;
+            if (argsObj.GetType().GetProperty("pin") != null)
             {
-                dynamic argsObj = args;
-                string pin;
-                if (argsObj.GetType().GetProperty("pin") != null)
+                pin = argsObj.GetType().GetProperty("pin").GetValue(argsObj, null);
+            }
+            else pin = this.Pin;
+
+            Task<BlockIoResponse<dynamic>> RequestTask = _request(Method, Path, argsObj);
+            res = RequestTask.Result;
+            if (res == null) throw new Exception("No response from the API server");
+
+            if (res.Status == "fail" || res.Data.reference_id == null
+            || res.Data.encrypted_passphrase == null || res.Data.encrypted_passphrase.passphrase == null)
+                return RequestTask;
+
+            if (pin == null)
+            {
+                if ((string)this.Options["allowNoPin"] == "true")
                 {
-                    pin = argsObj.GetType().GetProperty("pin").GetValue(argsObj, null);
-                }
-                else pin = this.Pin;
-                Task<BlockIoResponse<dynamic>> RequestTask = _request(Method, Path, argsObj);
-                res = RequestTask.Result;
-                if (res.Status == "fail" || res.Data.reference_id == null
-                || res.Data.encrypted_passphrase == null || res.Data.encrypted_passphrase.passphrase == null)
                     return RequestTask;
-
-                if (pin == null)
-                {
-                    if ((string)this.Options["allowNoPin"] == "true")
-                    {
-                        return RequestTask;
-                    }
-                    throw new Exception("Public key mismatch. Invalid Secret PIN detected.");
                 }
-
-                string enrypted_passphrase = res.Data.encrypted_passphrase.passphrase;
-                string aesKey = this.AesKey != null ? this.AesKey : Helper.PinToAesKey(pin);
-                Key privKey = new Key().ExtractKeyFromEncryptedPassphrase(enrypted_passphrase, aesKey);
-                string pubKey = privKey.PubKey.ToHex();
-                if (pubKey != res.Data.encrypted_passphrase.signer_public_key.ToString())
-                    throw new Exception("Public key mismatch. Invalid Secret PIN detected.");
-
-                foreach (dynamic input in res.Data.inputs)
-                {
-                    foreach (dynamic signer in input.signers)
-                    {
-                        signer.signed_data = Helper.SignInputs(privKey, input.data_to_sign.ToString(), pubKey);
-                    }
-                }
-
-                aesKey = "";
-                privKey = null;
-
-                dynamic signAndFinalizeRequestJson = new { res.Data.reference_id, res.Data.inputs };
-
-                return _request(Method, "sign_and_finalize_withdrawal", JsonConvert.SerializeObject(signAndFinalizeRequestJson));
+                throw new Exception("Public key mismatch. Invalid Secret PIN detected.");
             }
-            catch (Exception ex)
+
+            string enrypted_passphrase = res.Data.encrypted_passphrase.passphrase;
+            string aesKey = this.AesKey != null ? this.AesKey : Helper.PinToAesKey(pin);
+            Key privKey = new Key().ExtractKeyFromEncryptedPassphrase(enrypted_passphrase, aesKey);
+            string pubKey = privKey.PubKey.ToHex();
+            if (pubKey != res.Data.encrypted_passphrase.signer_public_key.ToString())
+                throw new Exception("Public key mismatch. Invalid Secret PIN detected.");
+
+            foreach (dynamic input in res.Data.inputs)
             {
-                throw new Exception(ex.ToString());
+                foreach (dynamic signer in input.signers)
+                {
+                    signer.signed_data = Helper.SignInputs(privKey, input.data_to_sign.ToString(), pubKey);
+                }
             }
+
+            dynamic signAndFinalizeRequestJson = new { res.Data.reference_id, res.Data.inputs };
+
+            return _request(Method, "sign_and_finalize_withdrawal", JsonConvert.SerializeObject(signAndFinalizeRequestJson));
+            
         }
 
         private Task<BlockIoResponse<dynamic>> _sweep(string Method, string Path, dynamic args)
         {
             Key KeyFromWif = null;
             BlockIoResponse<dynamic> res = null;
-            try
+            var argsObj = args;
+
+            if(argsObj.GetType().GetProperty("to_address") == null) throw new Exception("Missing mandatory private_key argument.");
+
+            string PrivKeyStr = argsObj.GetType().GetProperty("private_key").GetValue(argsObj, null);
+            KeyFromWif = new Key().FromWif(PrivKeyStr);
+            string to_address = argsObj.GetType().GetProperty("to_address").GetValue(argsObj, null);
+            string from_address = argsObj.GetType().GetProperty("from_address").GetValue(argsObj, null);
+            argsObj = new { to_address, from_address, public_key = KeyFromWif.PubKey.ToHex() };
+            args = argsObj;
+
+            Task<BlockIoResponse<dynamic>> RequestTask = _request(Method, Path, args);
+            res = RequestTask.Result;
+            
+            if (res == null) throw new Exception("No response from the API server");
+            
+            if (res.Data.reference_id == null)
+                return RequestTask;
+            foreach (dynamic input in res.Data.inputs)
             {
-                var argsObj = args;
-
-                if(argsObj.GetType().GetProperty("to_address") == null)
+                foreach (dynamic signer in input.signers)
                 {
-                    throw new Exception("Missing mandatory private_key argument.");
+                    signer.signed_data = Helper.SignInputs(KeyFromWif, input.data_to_sign.ToString(), argsObj.public_key.ToString());
                 }
-
-                string PrivKeyStr = argsObj.GetType().GetProperty("private_key").GetValue(argsObj, null);
-                KeyFromWif = new Key().FromWif(PrivKeyStr);
-                string to_address = argsObj.GetType().GetProperty("to_address").GetValue(argsObj, null);
-                string from_address = argsObj.GetType().GetProperty("from_address").GetValue(argsObj, null);
-                argsObj = new { to_address, from_address, public_key = KeyFromWif.PubKey.ToHex() };
-                args = argsObj;
-
-                Task<BlockIoResponse<dynamic>> RequestTask = _request(Method, Path, args);
-                res = RequestTask.Result;
-                if (res.Data.reference_id == null)
-                    return RequestTask;
-                foreach (dynamic input in res.Data.inputs)
-                {
-                    foreach (dynamic signer in input.signers)
-                    {
-                        signer.signed_data = Helper.SignInputs(KeyFromWif, input.data_to_sign.ToString(), argsObj.public_key.ToString());
-                    }
-                }
-                KeyFromWif = null;
-
-                dynamic signAndFinalizeRequestJson = new { res.Data.reference_id, res.Data.inputs };
-
-                return _request(Method, "sign_and_finalize_sweep", JsonConvert.SerializeObject(signAndFinalizeRequestJson));
             }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
+
+            dynamic signAndFinalizeRequestJson = new { res.Data.reference_id, res.Data.inputs };
+
+            return _request(Method, "sign_and_finalize_sweep", JsonConvert.SerializeObject(signAndFinalizeRequestJson));
+            
         }
 
         public BlockIoResponse<dynamic> ValidateKey()
