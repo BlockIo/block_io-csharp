@@ -40,7 +40,7 @@ namespace BlockIoLib.UnitTests
             baseUrl = "http://localhost:" + port + "/api/v2";
 
 
-            stub = FluentMockServer.Start(new FluentMockServerSettings
+            stub = WireMockServer.Start(new WireMockServerSettings
             {
                 Urls = new[] { "http://+:" + port }
             });
