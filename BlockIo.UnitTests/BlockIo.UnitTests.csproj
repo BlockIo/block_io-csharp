@@ -9,14 +9,11 @@
   <ItemGroup>
     <PackageReference Include="nunit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BlockIoLib\BlockIoLib.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Mock\Mock.csproj" />
+    <ProjectReference Include="..\BlockIo\BlockIo.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="data\sign_and_finalize_dtrust_withdrawal_request.json">

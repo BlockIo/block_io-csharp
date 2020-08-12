@@ -1,5 +1,6 @@
 ﻿using System;
 namespace BlockIoLib
+
 {
     public class Options
     {
