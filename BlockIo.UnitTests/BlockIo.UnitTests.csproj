@@ -16,9 +16,6 @@
     <ProjectReference Include="..\BlockIo\BlockIo.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Mock\Mock.csproj" />
-  </ItemGroup>
-  <ItemGroup>
     <None Update="data\sign_and_finalize_dtrust_withdrawal_request.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
