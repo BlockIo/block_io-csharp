@@ -1,10 +1,7 @@
 ﻿using Newtonsoft.Json;
 using NUnit.Framework;
-using RestSharp;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using WireMock;
 using WireMock.Matchers;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
