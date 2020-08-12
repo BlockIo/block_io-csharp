@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using RestSharp;
 
-namespace BlockIo
+namespace BlockIoLib
 {
     public partial class BlockIo
     {

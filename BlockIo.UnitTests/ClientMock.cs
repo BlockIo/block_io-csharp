@@ -11,7 +11,7 @@ using WireMock.ResponseBuilders;
 using WireMock.Server;
 using WireMock.Settings;
 
-namespace BlockIo.UnitTests
+namespace BlockIoLib.UnitTests
 {
     public class ClientMock
     {
@@ -38,7 +38,7 @@ namespace BlockIo.UnitTests
             api_key = "0000-0000-0000-0000";
             var port = new Random().Next(5000, 6000);
             baseUrl = "http://localhost:" + port + "/api/v2";
-            
+
 
             stub = FluentMockServer.Start(new FluentMockServerSettings
             {
@@ -79,14 +79,16 @@ namespace BlockIo.UnitTests
                     Response.Create()
                         .WithStatusCode(200)
                         .WithHeader("Content-Type", "application/json")
-                        .WithBodyAsJson( new { 
-                            status = "success", 
-                            data =  new { 
-                                network = "random", 
-                                txid = "random" 
-                            } 
+                        .WithBodyAsJson(new
+                        {
+                            status = "success",
+                            data = new
+                            {
+                                network = "random",
+                                txid = "random"
+                            }
                         }));
-            
+
             withdrawRequestBodyContent = new { from_labels = "testdest", amounts = "100", to_labels = "default" };
 
             var wif = "cTYLVcC17cYYoRjaBu15rEcD5WuDyowAw562q2F1ihcaomRJENu5";

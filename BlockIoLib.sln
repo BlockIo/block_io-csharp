@@ -3,11 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30204.135
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlockIo", "BlockIoLib\BlockIo.csproj", "{592CB20C-7AED-48E2-A007-81C931EC74BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlockIo", "BlockIo\BlockIo.csproj", "{592CB20C-7AED-48E2-A007-81C931EC74BC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockIo.UnitTests", "BlockIoLib.UnitTests\BlockIo.UnitTests.csproj", "{CF661357-E292-4651-89E5-29E395CB722E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockIo.UnitTests", "BlockIo.UnitTests\BlockIo.UnitTests.csproj", "{CF661357-E292-4651-89E5-29E395CB722E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mock", "Mock\Mock.csproj", "{F7D058E7-4A35-45B4-B8F6-8F64A05BCC7D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Basic", "Examples\Basic\Basic.csproj", "{BAED88EC-10DA-4006-80F9-42519FB2ADD4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sweeper", "Examples\Sweeper\Sweeper.csproj", "{89F0E01D-E12C-4C2D-A4CB-E237D86438C6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DTrust", "Examples\DTrust\DTrust.csproj", "{DBD52E06-B272-48CD-83BE-CB0377466F28}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaxWithdrawal", "Examples\MaxWithdrawal\MaxWithdrawal.csproj", "{A67EBBE6-41AE-48F6-8F58-97B9883F7B60}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +35,22 @@ Global
 		{F7D058E7-4A35-45B4-B8F6-8F64A05BCC7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7D058E7-4A35-45B4-B8F6-8F64A05BCC7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7D058E7-4A35-45B4-B8F6-8F64A05BCC7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAED88EC-10DA-4006-80F9-42519FB2ADD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAED88EC-10DA-4006-80F9-42519FB2ADD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAED88EC-10DA-4006-80F9-42519FB2ADD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAED88EC-10DA-4006-80F9-42519FB2ADD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89F0E01D-E12C-4C2D-A4CB-E237D86438C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89F0E01D-E12C-4C2D-A4CB-E237D86438C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89F0E01D-E12C-4C2D-A4CB-E237D86438C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89F0E01D-E12C-4C2D-A4CB-E237D86438C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBD52E06-B272-48CD-83BE-CB0377466F28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBD52E06-B272-48CD-83BE-CB0377466F28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBD52E06-B272-48CD-83BE-CB0377466F28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBD52E06-B272-48CD-83BE-CB0377466F28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A67EBBE6-41AE-48F6-8F58-97B9883F7B60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A67EBBE6-41AE-48F6-8F58-97B9883F7B60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A67EBBE6-41AE-48F6-8F58-97B9883F7B60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A67EBBE6-41AE-48F6-8F58-97B9883F7B60}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

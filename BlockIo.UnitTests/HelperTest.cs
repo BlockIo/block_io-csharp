@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using System;
 
-namespace BlockIo.UnitTests
+namespace BlockIoLib.UnitTests
 {
     public class HelperTest
     {
