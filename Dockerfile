@@ -3,3 +3,4 @@ WORKDIR /app
 COPY . .
 RUN dotnet msbuild -t:restore
 RUN dotnet msbuild
+RUN dotnet test
