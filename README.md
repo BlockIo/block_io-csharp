@@ -7,11 +7,10 @@ Litecoin or Dogecoin API key(s)
 from <a href="https://block.io" target="_blank">Block.io</a>.
 Go ahead, sign up :)
 
-## Installation
+## Installation (nuget or dotnet add)
 
-1. Clone the repo
-2. dotnet restore
-3. dotnet run --project ./BlockIoLib
+nuget install BlockIo
+dotnet add package BlockIo
 
 ## Usage
 
