@@ -7,29 +7,33 @@ Litecoin or Dogecoin API key(s)
 from <a href="https://block.io" target="_blank">Block.io</a>.
 Go ahead, sign up :)
 
-## Installation (nuget or dotnet add)
+## Installation
 
-nuget install BlockIo
-dotnet add package BlockIo
+    $ nuget install BlockIo
+
+or
+
+    > dotnet add package BlockIo  
+
 
 ## Usage
 
 It's super easy to get started. In your code, do this:
 
 ```csharp
-  BlockIo blockLib = new BlockIo(API_KEY);
+  BlockIo blockIo = new BlockIo(API_KEY);
 
   // print the account balance request's response
-  var data = blockLib.GetBalance().Data;
+  var data = blockIo.GetBalance().Data;
 
   // print the request's status code
-  var status = blockLib.GetBalance().Status;
+  var status = blockIo.GetBalance().Status;
 
   // print all addresses on this account
-  var data = blockLib.GetMyAddresses().Data;
+  var data = blockIo.GetMyAddresses().Data;
 
   // print the response of a withdrawal request
-  var data = blockLib.Withdraw(
+  var data = blockIo.Withdraw(
     new {
       pin="secret_pin",
       from_labels="label1,label2",
