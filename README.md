@@ -1,4 +1,3 @@
-# block_io-csharp
 # BlockIo
 
 This repository contains the official C# SDK for the Block.io payments API
