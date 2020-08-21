@@ -36,6 +36,7 @@ namespace BlockIoLib
         public BlockIoResponse<dynamic> DisableNotification(dynamic args = null) { return _request("POST", "disable_notification", args).Result; }
         public BlockIoResponse<dynamic> EnableNotification(dynamic args = null) { return _request("POST", "enable_notification", args).Result; }
         public BlockIoResponse<dynamic> GetNotifications(dynamic args = null) { return _request("POST", "get_notifications", args).Result; }
+        public BlockIoResponse<dynamic> ListNotifications(dynamic args = null) { return _request("GET", "list_notifications", args).Result; }
         public BlockIoResponse<dynamic> GetRecentNotificationEvents(dynamic args = null) { return _request("POST", "get_recent_notification_events", args).Result; }
         public BlockIoResponse<dynamic> DeleteNotification(dynamic args = null) { return _request("POST", "delete_notification", args).Result; }
         public BlockIoResponse<dynamic> ValidateApiKey(dynamic args = null) { return _request("POST", "validate_api_key", args).Result; }
