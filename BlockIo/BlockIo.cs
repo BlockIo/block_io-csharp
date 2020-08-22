@@ -28,7 +28,8 @@ namespace BlockIoLib
 
         public BlockIo(string ApiKey, string Pin = null, int Version = 2, Options Opts = null)
         {
-            string LibVersion = Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+            Assembly asm = typeof(BlockIo).Assembly;
+            string LibVersion = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
             UserAgent = string.Join(":", new string[] { "csharp", "block_io", LibVersion });
 
             this.Opts = Opts != null ? Opts : new Options();
