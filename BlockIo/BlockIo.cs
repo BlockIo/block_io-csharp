@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Reflection;
 using System.Net;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -24,9 +24,14 @@ namespace BlockIoLib
         private string DefaultServer = "";
         private string DefaultPort = "";
         private string Host = "block.io";
+        private string UserAgent;
 
         public BlockIo(string ApiKey, string Pin = null, int Version = 2, Options Opts = null)
         {
+            Assembly asm = typeof(BlockIo).Assembly;
+            string LibVersion = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+            UserAgent = string.Join(":", new string[] { "csharp", "block_io", LibVersion });
+
             this.Opts = Opts != null ? Opts : new Options();
             ApiUrl = this.Opts.ApiUrl;
             this.Pin = Pin;
@@ -153,6 +158,8 @@ namespace BlockIoLib
                     signature_data = args
                 });
             }
+            request.AddHeader("Accept", "application/json");
+            request.AddHeader("User-Agent", UserAgent);
             var response = Method == "POST" ? await RestClient.ExecutePostAsync(request) : await RestClient.ExecuteGetAsync(request);
 
             return GetData<BlockIoResponse<dynamic>>(response);
