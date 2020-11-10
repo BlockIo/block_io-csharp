@@ -13,7 +13,7 @@ namespace BlockIoLib
         }
         public void Authenticate(IRestClient client, IRestRequest request)
         {
-            request.Parameters.Add(new Parameter("api_key", _apiKey, ParameterType.QueryString));
+            request.AddParameter("api_key", _apiKey, ParameterType.QueryString);
         }
     }
 }
