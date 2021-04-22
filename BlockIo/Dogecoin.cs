@@ -4,7 +4,7 @@ using NBitcoin.Protocol;
 using System.Reflection;
 using System;
 
-namespace AddressGeneration
+namespace BlockIoLib
 {
 	public class Dogecoin : NetworkSetBase
 	{

@@ -3,7 +3,7 @@ using NBitcoin;
 using NBitcoin.DataEncoders;
 using System.Reflection;
 
-namespace AddressGeneration
+namespace BlockIoLib
 {
 	public class Litecoin : NetworkSetBase
 	{
