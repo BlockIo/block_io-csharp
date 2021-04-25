@@ -1,9 +1,13 @@
-﻿using System;
+﻿using NBitcoin;
+using System;
+using NUnit.Framework;
+
 namespace BlockIo.UnitTests
 {
     public class PrepareTransactionTest
     {
-        public PrepareTransactionTest()
+        [SetUp]
+        public void Setup()
         {
         }
     }

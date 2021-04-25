@@ -8,7 +8,6 @@ namespace BlockIoLib.UnitTests
         Network network;
         Key privkey1;
         Key privkey2;
-        int networkFee; 
 
         [SetUp]
         public void Setup()
@@ -16,7 +15,6 @@ namespace BlockIoLib.UnitTests
             network = Litecoin.Instance.Testnet;
             privkey1 = new Key(Helper.HexStringToByteArray("ef4fc6cfd682494093bbadf041ba4341afbe22b224432e21a4bc4470c5b939d4"));
             privkey2 = new Key(Helper.HexStringToByteArray("123f37eb9a7f24a120969a1b2d6ac4859fb8080cfc2e8d703abae0f44305fc12"));
-            networkFee = 10000;
         }
 
         [Test]
