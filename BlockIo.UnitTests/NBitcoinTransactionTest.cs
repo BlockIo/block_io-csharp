@@ -133,5 +133,41 @@ namespace BlockIoLib.UnitTests
             Assert.AreEqual(signedTx.ToHex(), "01000000000101012ca4024859020c1119328cc070fae002bde52a191b61904c8e98da3c8da7660000000000ffffffff01d0549a3b00000000220020d42b8341140559b7da105e8669e8f7d5a03773642ad82403ba91b80ffcc415de024730440220436f9c0d1bb66cb507da29ba3a583b152b5265d9eba1f4067612124ea7f536470220414213d205f4becf61481a1c816684b0e9912f4abcc174211b20c88b6158b005012103820317ad251bca573c8fda2b8f26ffc9aae9d5ecb15b50ee08d8f9e009def38e00000000");
             Assert.AreEqual(signedTx.GetHash().ToString(), "d14891128bc4c72dfa45269f302edf690289214874c5ee40b118c1d5465319e6");
         }
+
+        [Test]
+        public void TestTransactionWitnessV0ToP2WPKHOverP2SH()
+        {
+            var prevTxId = "d14891128bc4c72dfa45269f302edf690289214874c5ee40b118c1d5465319e6";
+            var prevOutputValue = PreOutputValue - Fee - Fee - Fee;
+            var outputValue = prevOutputValue - Fee;
+            var P2shMultiSig = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, new[] { privkey1.PubKey, privkey2.PubKey });
+
+            var from_addr = P2shMultiSig.GetWitScriptAddress(network); // witnessV0
+            var to_addr = privkey1.PubKey.WitHash.GetAddress(network).GetScriptAddress(); // P2WPKH-over-P2SH
+
+            var txOut = new TxOut(prevOutputValue, from_addr);
+            var InputCoin = new ScriptCoin(new OutPoint(new uint256(prevTxId), 0), txOut, P2shMultiSig);
+
+            var txBuilder = network.CreateTransactionBuilder();
+
+
+            var unsignedTx = txBuilder
+                .AddCoins(InputCoin)
+                .AddKeys(privkey1, privkey2)
+                .Send(to_addr, outputValue)
+                .SendFees(Fee)
+                .BuildTransaction(false);
+
+            Assert.AreEqual(unsignedTx.ToHex(), "0100000001e6195346d5c118b140eec5744821890269df2e309f2645fa2dc7c48b129148d10000000000ffffffff01c02d9a3b0000000017a914dd4edd1406541e476450fda7924720fe19f337b98700000000");
+
+            var sighash0 = unsignedTx.GetSignatureHash(InputCoin.GetScriptCode(), 0, SigHash.All).ToString();
+
+            //Assert.AreEqual(sighash0, "bd77fd23a1e80c3670d7a547ce45031f5f611e4dc49a2eb65def2e6db841e011");
+
+            var signedTx = txBuilder.SignTransaction(unsignedTx);
+
+            Assert.AreEqual(signedTx.ToHex(), "01000000000101e6195346d5c118b140eec5744821890269df2e309f2645fa2dc7c48b129148d10000000000ffffffff01c02d9a3b0000000017a914dd4edd1406541e476450fda7924720fe19f337b987040047304402205f2cabd4fa34e0947f07454a9d905073a21bb0818a009356481c1acd6f915f6f02203ba6bb8148a1790f4e1939ea74a21dcc8a837595e54323bbba0615a15b779c4901473044022033d8136791bc5658700b385ca5728b9e188a3ba1aa3bc691d6adfd1b8431cee6022073d565e5d1e96c0257f7cefdab946e48fb3857248f49048e00f6b701e97457c30147522103820317ad251bca573c8fda2b8f26ffc9aae9d5ecb15b50ee08d8f9e009def38e210238de8c9eb2842ecaf0cc61ee6ba23fe4e46f1cfd82eac0910e1d8e865bd76df952ae00000000");
+            Assert.AreEqual(signedTx.GetHash().ToString(), "d76dd93d5afbc8cb3bfd487445fac9f81d7ae409723990f7744f398feae9c0e4");
+        }
     }
 }
