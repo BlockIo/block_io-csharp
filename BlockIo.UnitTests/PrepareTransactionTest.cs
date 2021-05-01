@@ -2,7 +2,7 @@
 using System;
 using NUnit.Framework;
 
-namespace BlockIo.UnitTests
+namespace BlockIoLib.UnitTests
 {
     public class PrepareTransactionTest
     {

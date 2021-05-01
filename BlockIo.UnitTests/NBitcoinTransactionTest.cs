@@ -1,6 +1,4 @@
-﻿using System;
-using NBitcoin;
-using NBitcoin.DataEncoders;
+﻿using NBitcoin;
 using NUnit.Framework;
 
 namespace BlockIoLib.UnitTests
