@@ -72,6 +72,7 @@ namespace BlockIoLib.UnitTests
             }
 
             Dictionary<string, Script> addrScriptMap = new Dictionary<string, Script>();
+            Dictionary<string, PubKey[]> addrPubkeysMap = new Dictionary<string, PubKey[]>();
 
             foreach (dynamic curAddressData in inputAddressData)
             {
@@ -90,6 +91,7 @@ namespace BlockIoLib.UnitTests
                     var P2shMultiSig = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(requiredSignatures, curPubKeys);
 
                     addrScriptMap.Add(curAddressData["address"].ToString(), P2shMultiSig);
+                    addrPubkeysMap.Add(curAddressData["address"].ToString(), curPubKeys);
                 }
                 else if(addressType != "P2WPKH-over-P2SH" && addressType != "P2PKH" && addressType != "P2WPKH")
                 {
@@ -135,13 +137,11 @@ namespace BlockIoLib.UnitTests
             Key[] userKeysArr = new Key[userKeys.Count];
             userKeys.Values.CopyTo(userKeysArr, 0);
 
-            var txBuilder = network.CreateTransactionBuilder();
+            var txBuilder = network.CreateTransactionBuilder(0);
+            txBuilder.ShuffleRandom = null;
+            txBuilder.ShuffleInputs = false;
+            txBuilder.ShuffleOutputs = false;
 
-            //for(int i =0; i < inputCoins.Length; i++)
-            //{
-            //    txBuilder.AddCoins(inputCoins[i]);
-            //}
-            txBuilder.ShuffleRandom = new Random(Convert.ToInt32(null));
             txBuilder.AddCoins(inputCoins);
             txBuilder.AddKeys(userKeysArr);
 
@@ -162,19 +162,27 @@ namespace BlockIoLib.UnitTests
                 }
             }
             txBuilder.SendFees(InputOutputDifference.ToString());
-            
-            //try
-            //{
-
-            //}
-            //catch (Exception e)
-            //{
-            //    Console.WriteLine(e.Message);
-            //}
 
             var unsignedTx = txBuilder.BuildTransaction(false);
 
-            Console.WriteLine(unsignedTx.ToHex());
+            int inputIte = 0;
+            foreach(dynamic input in inputs)
+            {
+                var curPubKeys = addrPubkeysMap[input["spending_address"].ToString()];
+
+                foreach(var pubkey in curPubKeys)
+                {
+                    if (userKeys.ContainsKey(pubkey.ToHex()))
+                    {
+                        Key key = userKeys[pubkey.ToHex()];
+
+                        TransactionSignature signature = unsignedTx.SignInput(key, inputCoins[inputIte]);
+                        inputIte++;
+                        Console.WriteLine(signature);
+                    }
+                }
+            }
+
 
             return new object();
         }
