@@ -137,7 +137,7 @@ namespace BlockIoLib.UnitTests
             Key[] userKeysArr = new Key[userKeys.Count];
             userKeys.Values.CopyTo(userKeysArr, 0);
 
-            var txBuilder = network.CreateTransactionBuilder(0);
+            var txBuilder = network.CreateTransactionBuilder();
             txBuilder.ShuffleRandom = null;
             txBuilder.ShuffleInputs = false;
             txBuilder.ShuffleOutputs = false;
