@@ -73,12 +73,14 @@ namespace BlockIoLib.UnitTests
 
             Dictionary<string, Script> addrScriptMap = new Dictionary<string, Script>();
             Dictionary<string, PubKey[]> addrPubkeysMap = new Dictionary<string, PubKey[]>();
+            Dictionary<string, int> addrRequiredSigs = new Dictionary<string, int>();
 
             foreach (dynamic curAddressData in inputAddressData)
             {
                 var addressType = curAddressData["address_type"].ToString();
+                var requiredSigs = short.Parse(curAddressData["required_signatures"].ToString());
 
-                if(addressType == "P2WSH-over-P2SH" || addressType == "WITNESS_V0" || addressType == "P2SH")
+                if (addressType == "P2WSH-over-P2SH" || addressType == "WITNESS_V0" || addressType == "P2SH")
                 {
                     PubKey[] curPubKeys = new PubKey[curAddressData["public_keys"].Count];
                     int pubKeyIte = 0;
@@ -92,6 +94,7 @@ namespace BlockIoLib.UnitTests
 
                     addrScriptMap.Add(curAddressData["address"].ToString(), P2shMultiSig);
                     addrPubkeysMap.Add(curAddressData["address"].ToString(), curPubKeys);
+                    addrRequiredSigs.Add(curAddressData["address"].ToString(),requiredSigs);
                 }
                 else if(addressType != "P2WPKH-over-P2SH" && addressType != "P2PKH" && addressType != "P2WPKH")
                 {
@@ -138,7 +141,6 @@ namespace BlockIoLib.UnitTests
             userKeys.Values.CopyTo(userKeysArr, 0);
 
             var txBuilder = network.CreateTransactionBuilder();
-            txBuilder.ShuffleRandom = null;
             txBuilder.ShuffleInputs = false;
             txBuilder.ShuffleOutputs = false;
 
@@ -161,14 +163,29 @@ namespace BlockIoLib.UnitTests
                     txBuilder.Send(to_addr, value);
                 }
             }
+
             txBuilder.SendFees(InputOutputDifference.ToString());
 
             var unsignedTx = txBuilder.BuildTransaction(false);
 
             int inputIte = 0;
-            foreach(dynamic input in inputs)
+            foreach(var coin in inputCoins)
+            {
+                // adding input coins to txbuilder shuffles the inputs even though shuffle inputs is set to false
+                // this is used to reorder the inputs correctly
+                unsignedTx.Inputs[inputIte] = new TxIn(coin.Outpoint);
+                inputIte++;
+            }
+
+            bool txFullySigned = true;
+            List<dynamic> signatures = new List<dynamic>();
+            inputIte = 0;
+
+            foreach (dynamic input in inputs)
             {
                 var curPubKeys = addrPubkeysMap[input["spending_address"].ToString()];
+                var curSignatures = new Dictionary<PubKey, string>();
+                var curAddr = input["spending_address"].ToString();
 
                 foreach(var pubkey in curPubKeys)
                 {
@@ -177,14 +194,54 @@ namespace BlockIoLib.UnitTests
                         Key key = userKeys[pubkey.ToHex()];
 
                         TransactionSignature signature = unsignedTx.SignInput(key, inputCoins[inputIte]);
-                        inputIte++;
-                        Console.WriteLine(signature);
+                        var sigString = signature.ToString();
+
+                        // signature contains the sighash at the end (sighash.ALL => 01)
+                        // removing here
+                        var sighashRemovedSig = sigString.Remove(sigString.Length - 2, 2);
+                        curSignatures.Add(pubkey, sighashRemovedSig);
                     }
                 }
+                if(curSignatures.Count < addrRequiredSigs[curAddr])
+                {
+                    txFullySigned = false;
+                }
+
+                foreach (KeyValuePair<PubKey, string> entry in curSignatures)
+                {
+                    signatures.Add(new
+                    {
+                        input_index = inputIte,
+                        public_key = entry.Key.ToHex(),
+                        signature = entry.Value
+
+                    });
+                }
+
+                inputIte++;
             }
 
+            dynamic createAndSignResponse;
 
-            return new object();
+            if(txFullySigned)
+            {
+                createAndSignResponse = new
+                {
+                    tx_type = dataObj["tx_type"].ToString(),
+                    tx_hex = unsignedTx.ToHex()
+                };
+            }
+            else
+            {
+                createAndSignResponse = new
+                {
+                    tx_type = dataObj["tx_type"].ToString(),
+                    tx_hex = unsignedTx.ToHex(),
+                    signatures
+                };
+            }
+
+            return createAndSignResponse;
         }
         [SetUp]
         public void Setup()
@@ -212,6 +269,10 @@ namespace BlockIoLib.UnitTests
             }
 
             var response = CreateAndSignTransaction(prepareTransactionResponse);
+
+            response = JsonConvert.SerializeObject(response); //convert dynamic object to json string
+            response = JsonConvert.DeserializeObject(response); //convert json string back to object
+
             Assert.AreEqual(response, createAndSignTransactionResponse);
         }
     }
