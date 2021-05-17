@@ -4,11 +4,16 @@ using System.Net;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using RestSharp;
+using System.Collections.Generic;
+using NBitcoin;
 
 namespace BlockIoLib
 {
     public partial class BlockIo
     {
+        Network network;
+        Dictionary<string, Key> userKeys;
+
         private readonly RestClient RestClient;
         private readonly string ApiUrl;
 
@@ -28,6 +33,9 @@ namespace BlockIoLib
 
         public BlockIo(string ApiKey, string Pin = null, int Version = 2, Options Opts = null)
         {
+            network = null;
+            userKeys = new Dictionary<string, Key>();
+
             Assembly asm = typeof(BlockIo).Assembly;
             string LibVersion = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
             UserAgent = string.Join(":", new string[] { "csharp", "block_io", LibVersion });
@@ -170,6 +178,237 @@ namespace BlockIoLib
             if (data == null) throw new Exception("No response from the API server");
 
             return data;
+        }
+
+        public object CreateAndSignTransaction(dynamic data, string[] keys = null)
+        {
+            var status = data["status"];
+            dynamic dataObj = data["data"];
+            var networkString = dataObj["network"].ToString();
+            if (network == null && !object.ReferenceEquals(status, null) &&
+                status == "success" && !object.ReferenceEquals(dataObj, null) &&
+                !object.ReferenceEquals(networkString, null))
+            {
+                network = getNetwork(networkString);
+            }
+            dynamic inputs = dataObj["inputs"];
+            dynamic outputs = dataObj["outputs"];
+            dynamic inputAddressData = dataObj["input_address_data"];
+
+            Coin[] inputCoins = new Coin[inputs.Count];
+            string[] inputAddrs = new string[inputs.Count];
+
+            int ite = 0;
+            double InputOutputDifference = 0;
+            foreach (dynamic input in inputs)
+            {
+                var preOutputValue = input["input_value"].ToString();
+
+                InputOutputDifference += Convert.ToDouble(preOutputValue);
+                var from_addr = BitcoinAddress.Create(input["spending_address"].ToString(), network);
+                var preTxId = input["previous_txid"].ToString();
+                var preOutputIndex = Convert.ToUInt32(input["previous_output_index"].ToString());
+
+                var txOut = new TxOut(preOutputValue, from_addr);
+                var InputCoin = new Coin(new OutPoint(new uint256(preTxId), preOutputIndex), txOut);
+
+                inputCoins[ite] = InputCoin;
+                inputAddrs[ite] = from_addr.ToString();
+                ite++;
+            }
+
+            Dictionary<string, Script> addrScriptMap = new Dictionary<string, Script>();
+            Dictionary<string, PubKey[]> addrPubkeysMap = new Dictionary<string, PubKey[]>();
+            Dictionary<string, int> addrRequiredSigs = new Dictionary<string, int>();
+
+            foreach (dynamic curAddressData in inputAddressData)
+            {
+                var addressType = curAddressData["address_type"].ToString();
+                var requiredSigs = short.Parse(curAddressData["required_signatures"].ToString());
+
+                if (addressType == "P2WSH-over-P2SH" || addressType == "WITNESS_V0" || addressType == "P2SH")
+                {
+                    PubKey[] curPubKeys = new PubKey[curAddressData["public_keys"].Count];
+                    int pubKeyIte = 0;
+                    foreach (dynamic pubkey in curAddressData["public_keys"])
+                    {
+                        curPubKeys[pubKeyIte] = new PubKey(pubkey.ToString());
+                        pubKeyIte++;
+                    }
+                    int requiredSignatures = Convert.ToUInt16(curAddressData["required_signatures"].ToString());
+                    var P2shMultiSig = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(requiredSignatures, curPubKeys);
+
+                    addrScriptMap.Add(curAddressData["address"].ToString(), P2shMultiSig);
+                    addrPubkeysMap.Add(curAddressData["address"].ToString(), curPubKeys);
+                    addrRequiredSigs.Add(curAddressData["address"].ToString(), requiredSigs);
+                }
+                else if (addressType != "P2WPKH-over-P2SH" && addressType != "P2PKH" && addressType != "P2WPKH")
+                {
+                    throw new Exception("Unrecognized address type: " + addressType);
+                }
+            }
+
+            for (int i = 0; i < inputCoins.Length; i++)
+            {
+                if (addrScriptMap.ContainsKey(inputAddrs[i]))
+                {
+                    inputCoins[i] = inputCoins[i].ToScriptCoin(addrScriptMap[inputAddrs[i]]);
+                }
+            }
+            string encryptionKey;
+            if (Pin != null && Pin != "")
+            {
+                encryptionKey = Helper.PinToAesKey(Pin);
+                if (!object.ReferenceEquals(dataObj["user_key"], null) && !userKeys.ContainsKey(dataObj["user_key"]["public_key"].ToString()))
+                {
+                    string pubkeyStr = dataObj["user_key"]["public_key"].ToString();
+
+                    Key key = new Key().ExtractKeyFromEncryptedPassphrase(dataObj["user_key"]["encrypted_passphrase"].ToString(), encryptionKey);
+
+                    if (key.PubKey.ToHex() != pubkeyStr)
+                    {
+                        throw new Exception("Fail: Invalid Secret PIN provided.");
+                    }
+
+                    userKeys.Add(pubkeyStr, key);
+                }
+            }
+
+            if (keys != null)
+            {
+                foreach (string key in keys)
+                {
+                    Key userKey = new Key().FromWif(key);
+                    userKeys.Add(userKey.PubKey.ToHex(), userKey);
+                }
+            }
+
+            Key[] userKeysArr = new Key[userKeys.Count];
+            userKeys.Values.CopyTo(userKeysArr, 0);
+
+            var txBuilder = network.CreateTransactionBuilder();
+            txBuilder.ShuffleInputs = false;
+            txBuilder.ShuffleOutputs = false;
+
+            txBuilder.AddCoins(inputCoins);
+            txBuilder.AddKeys(userKeysArr);
+
+            foreach (dynamic output in outputs)
+            {
+                var to_addr = BitcoinAddress.Create(output["receiving_address"].ToString(), network);
+                var value = output["output_value"].ToString();
+
+                InputOutputDifference -= Convert.ToDouble(value);
+                if (output["output_category"].ToString() == "change")
+                {
+                    txBuilder.SetChange(to_addr);
+                    txBuilder.Send(to_addr, value);
+                }
+                else
+                {
+                    txBuilder.Send(to_addr, value);
+                }
+            }
+
+            txBuilder.SendFees(InputOutputDifference.ToString());
+
+            var unsignedTx = txBuilder.BuildTransaction(false);
+
+            int inputIte = 0;
+            foreach (var coin in inputCoins)
+            {
+                // adding input coins to txbuilder shuffles the inputs even though shuffle inputs is set to false
+                // this is used to reorder the inputs correctly
+                unsignedTx.Inputs[inputIte] = new TxIn(coin.Outpoint);
+                inputIte++;
+            }
+
+            bool txFullySigned = true;
+            List<dynamic> signatures = new List<dynamic>();
+            inputIte = 0;
+
+            foreach (dynamic input in inputs)
+            {
+                var curPubKeys = addrPubkeysMap[input["spending_address"].ToString()];
+                var curSignatures = new Dictionary<PubKey, string>();
+                var curAddr = input["spending_address"].ToString();
+
+                foreach (var pubkey in curPubKeys)
+                {
+                    if (userKeys.ContainsKey(pubkey.ToHex()))
+                    {
+                        Key key = userKeys[pubkey.ToHex()];
+
+                        TransactionSignature signature = unsignedTx.SignInput(key, inputCoins[inputIte]);
+                        var sigString = signature.ToString();
+
+                        // signature contains the sighash at the end (sighash.ALL => 01)
+                        // removing here
+                        var sighashRemovedSig = sigString.Remove(sigString.Length - 2, 2);
+                        curSignatures.Add(pubkey, sighashRemovedSig);
+                    }
+                }
+                if (curSignatures.Count < addrRequiredSigs[curAddr])
+                {
+                    txFullySigned = false;
+                }
+
+                foreach (KeyValuePair<PubKey, string> entry in curSignatures)
+                {
+                    signatures.Add(new
+                    {
+                        input_index = inputIte,
+                        public_key = entry.Key.ToHex(),
+                        signature = entry.Value
+
+                    });
+                }
+
+                inputIte++;
+            }
+
+            dynamic createAndSignResponse;
+
+            if (txFullySigned)
+            {
+                createAndSignResponse = new
+                {
+                    tx_type = dataObj["tx_type"].ToString(),
+                    tx_hex = unsignedTx.ToHex()
+                };
+            }
+            else
+            {
+                createAndSignResponse = new
+                {
+                    tx_type = dataObj["tx_type"].ToString(),
+                    tx_hex = unsignedTx.ToHex(),
+                    signatures
+                };
+            }
+
+            return createAndSignResponse;
+        }
+
+        public Network getNetwork(string networkString)
+        {
+            switch (networkString)
+            {
+                case "BTC":
+                    return Network.Main;
+                case "LTC":
+                    return Litecoin.Instance.Mainnet;
+                case "DOGE":
+                    return Dogecoin.Instance.Mainnet;
+                case "BTCTEST":
+                    return Network.TestNet;
+                case "LTCTEST":
+                    return Litecoin.Instance.Testnet;
+                case "DOGETEST":
+                    return Dogecoin.Instance.Testnet;
+                default:
+                    return Network.Main;
+            }
         }
     }
 }
