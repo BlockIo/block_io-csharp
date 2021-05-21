@@ -153,5 +153,30 @@ namespace BlockIoLib.UnitTests
 
             Assert.AreEqual(response, createAndSignTransactionResponse);
         }
+
+        [Test]
+        public void testDTrustWitnessV03of5Keys()
+        {
+            dynamic prepareTransactionResponse = new object();
+            dynamic createAndSignTransactionResponse = new object();
+
+            using (StreamReader r = new StreamReader("./data/prepare_dtrust_transaction_response_witness_v0.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+            }
+            using (StreamReader r = new StreamReader("./data/create_and_sign_transaction_response_dtrust_witness_v0_3_of_5_keys.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                createAndSignTransactionResponse = JsonConvert.DeserializeObject(json);
+            }
+
+            var response = blockIo.CreateAndSignTransaction(prepareTransactionResponse, dtrustKeys[0..3]);
+
+            response = JsonConvert.SerializeObject(response); //convert dynamic object to json string
+            response = JsonConvert.DeserializeObject(response); //convert json string back to object
+
+            Assert.AreEqual(response, createAndSignTransactionResponse);
+        }
     }
 }
