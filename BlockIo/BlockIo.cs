@@ -291,7 +291,8 @@ namespace BlockIoLib
             {
                 foreach (string key in keys)
                 {
-                    Key userKey = new Key().FromWif(key);
+                    Key userKey = new Key().FromHex(key);
+                    
                     userKeys.Add(userKey.PubKey.ToHex(), userKey);
                 }
             }

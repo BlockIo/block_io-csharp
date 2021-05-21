@@ -17,6 +17,10 @@ namespace BlockIoLib
         {
 
         }
+        public Key FromHex(string PrivKeyHex)
+        {
+            return new Key(Helper.HexStringToByteArray(PrivKeyHex.PadLeft(64, '0')));
+        }
         public Key FromWif(string PrivKey)
         {
             byte[] ExtendedKeyBytes = Base58CheckEncoding.Decode(PrivKey);
