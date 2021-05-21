@@ -199,12 +199,12 @@ namespace BlockIoLib
             string[] inputAddrs = new string[inputs.Count];
 
             int ite = 0;
-            double InputOutputDifference = 0;
+            decimal InputOutputDifference = 0;
             foreach (dynamic input in inputs)
             {
                 var preOutputValue = input["input_value"].ToString();
 
-                InputOutputDifference += Convert.ToDouble(preOutputValue);
+                InputOutputDifference += Convert.ToDecimal(preOutputValue);
                 var from_addr = BitcoinAddress.Create(input["spending_address"].ToString(), network);
                 var preTxId = input["previous_txid"].ToString();
                 var preOutputIndex = Convert.ToUInt32(input["previous_output_index"].ToString());
@@ -242,7 +242,20 @@ namespace BlockIoLib
                     addrPubkeysMap.Add(curAddressData["address"].ToString(), curPubKeys);
                     addrRequiredSigs.Add(curAddressData["address"].ToString(), requiredSigs);
                 }
-                else if (addressType != "P2WPKH-over-P2SH" && addressType != "P2PKH" && addressType != "P2WPKH")
+                else if (addressType == "P2WPKH-over-P2SH" || addressType == "P2PKH" || addressType == "P2WPKH")
+                {
+                    PubKey[] curPubKey = new PubKey[1];
+                    curPubKey[0] = new PubKey(curAddressData["public_keys"][0].ToString());
+                    addrPubkeysMap.Add(curAddressData["address"].ToString(), curPubKey);
+                    addrRequiredSigs.Add(curAddressData["address"].ToString(), 1);
+
+                    if(addressType == "P2WPKH-over-P2SH")
+                    {
+                        var script = curPubKey[0].GetScriptPubKey(ScriptPubKeyType.Segwit);
+                        addrScriptMap.Add(curAddressData["address"].ToString(), script);
+                    }
+                }
+                else
                 {
                     throw new Exception("Unrecognized address type: " + addressType);
                 }
@@ -297,8 +310,7 @@ namespace BlockIoLib
             {
                 var to_addr = BitcoinAddress.Create(output["receiving_address"].ToString(), network);
                 var value = output["output_value"].ToString();
-
-                InputOutputDifference -= Convert.ToDouble(value);
+                InputOutputDifference -= Convert.ToDecimal(value);
                 if (output["output_category"].ToString() == "change")
                 {
                     txBuilder.SetChange(to_addr);
@@ -371,22 +383,17 @@ namespace BlockIoLib
 
             if (txFullySigned)
             {
-                createAndSignResponse = new
-                {
-                    tx_type = dataObj["tx_type"].ToString(),
-                    tx_hex = unsignedTx.ToHex()
-                };
+                signatures = null;
+                unsignedTx = txBuilder.SignTransaction(unsignedTx);
             }
-            else
+            createAndSignResponse = new
             {
-                createAndSignResponse = new
-                {
-                    tx_type = dataObj["tx_type"].ToString(),
-                    tx_hex = unsignedTx.ToHex(),
-                    signatures
-                };
-            }
+                tx_type = dataObj["tx_type"].ToString(),
+                tx_hex = unsignedTx.ToHex(),
+                signatures
+            };
 
+            userKeys.Clear();
             return createAndSignResponse;
         }
 
