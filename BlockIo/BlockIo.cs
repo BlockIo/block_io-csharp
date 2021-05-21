@@ -336,6 +336,14 @@ namespace BlockIoLib
                 inputIte++;
             }
 
+            var expectedUnsignedTxId = dataObj["expected_unsigned_txid"];
+
+            if (!object.ReferenceEquals(expectedUnsignedTxId, null) &&
+                expectedUnsignedTxId != unsignedTx.GetHash().ToString())
+            {
+                throw new Exception("Expected unsigned transaction ID mismatch. Please report this error to support@block.io.");
+            }
+
             bool txFullySigned = true;
             List<dynamic> signatures = new List<dynamic>();
             inputIte = 0;

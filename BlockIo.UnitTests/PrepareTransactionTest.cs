@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System.IO;
 using Newtonsoft.Json;
+using System;
 
 namespace BlockIoLib.UnitTests
 {
@@ -177,6 +178,170 @@ namespace BlockIoLib.UnitTests
             response = JsonConvert.DeserializeObject(response); //convert json string back to object
 
             Assert.AreEqual(response, createAndSignTransactionResponse);
+        }
+
+        [Test]
+        public void testDTrustP2WSHOverP2SH4of5Keys()
+        {
+            dynamic prepareTransactionResponse = new object();
+            dynamic createAndSignTransactionResponse = new object();
+
+            using (StreamReader r = new StreamReader("./data/prepare_dtrust_transaction_response_p2wsh_over_p2sh.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+            }
+            using (StreamReader r = new StreamReader("./data/create_and_sign_transaction_response_dtrust_p2wsh_over_p2sh_4_of_5_keys.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                createAndSignTransactionResponse = JsonConvert.DeserializeObject(json);
+            }
+
+            var response = blockIo.CreateAndSignTransaction(prepareTransactionResponse, dtrustKeys);
+
+            response = JsonConvert.SerializeObject(response); //convert dynamic object to json string
+            response = JsonConvert.DeserializeObject(response); //convert json string back to object
+
+            Assert.AreEqual(response, createAndSignTransactionResponse);
+        }
+
+        [Test]
+        public void testDTrustP2WSHOverP2SH3of5Keys()
+        {
+            dynamic prepareTransactionResponse = new object();
+            dynamic createAndSignTransactionResponse = new object();
+
+            using (StreamReader r = new StreamReader("./data/prepare_dtrust_transaction_response_p2wsh_over_p2sh.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+            }
+            using (StreamReader r = new StreamReader("./data/create_and_sign_transaction_response_dtrust_p2wsh_over_p2sh_3_of_5_keys.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                createAndSignTransactionResponse = JsonConvert.DeserializeObject(json);
+            }
+
+            var response = blockIo.CreateAndSignTransaction(prepareTransactionResponse, dtrustKeys[0..3]);
+
+            response = JsonConvert.SerializeObject(response); //convert dynamic object to json string
+            response = JsonConvert.DeserializeObject(response); //convert json string back to object
+
+            Assert.AreEqual(response, createAndSignTransactionResponse);
+        }
+
+        [Test]
+        public void testDTrustP2SH4of5Keys()
+        {
+            dynamic prepareTransactionResponse = new object();
+            dynamic createAndSignTransactionResponse = new object();
+
+            using (StreamReader r = new StreamReader("./data/prepare_dtrust_transaction_response_p2sh.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+            }
+            using (StreamReader r = new StreamReader("./data/create_and_sign_transaction_response_dtrust_p2sh_4_of_5_keys.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                createAndSignTransactionResponse = JsonConvert.DeserializeObject(json);
+            }
+
+            var response = blockIo.CreateAndSignTransaction(prepareTransactionResponse, dtrustKeys);
+
+            response = JsonConvert.SerializeObject(response); //convert dynamic object to json string
+            response = JsonConvert.DeserializeObject(response); //convert json string back to object
+
+            Assert.AreEqual(response, createAndSignTransactionResponse);
+        }
+
+        [Test]
+        public void testDTrustP2SH3of5Keys()
+        {
+            dynamic prepareTransactionResponse = new object();
+            dynamic createAndSignTransactionResponse = new object();
+
+            using (StreamReader r = new StreamReader("./data/prepare_dtrust_transaction_response_p2sh.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+            }
+            using (StreamReader r = new StreamReader("./data/create_and_sign_transaction_response_dtrust_p2sh_3_of_5_keys.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                createAndSignTransactionResponse = JsonConvert.DeserializeObject(json);
+            }
+
+            var response = blockIo.CreateAndSignTransaction(prepareTransactionResponse, dtrustKeys[0..3]);
+
+            response = JsonConvert.SerializeObject(response); //convert dynamic object to json string
+            response = JsonConvert.DeserializeObject(response); //convert json string back to object
+
+            Assert.AreEqual(response, createAndSignTransactionResponse);
+        }
+
+        [Test]
+        public void testDTrustP2SH3of5UnorderedKeys()
+        {
+            dynamic prepareTransactionResponse = new object();
+            dynamic createAndSignTransactionResponse = new object();
+
+            using (StreamReader r = new StreamReader("./data/prepare_dtrust_transaction_response_p2sh.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+            }
+            using (StreamReader r = new StreamReader("./data/create_and_sign_transaction_response_dtrust_p2sh_3_of_5_keys.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                createAndSignTransactionResponse = JsonConvert.DeserializeObject(json);
+            }
+
+            var response = blockIo.CreateAndSignTransaction(prepareTransactionResponse, new []{ dtrustKeys[1], dtrustKeys[2], dtrustKeys[0] });
+
+            response = JsonConvert.SerializeObject(response); //convert dynamic object to json string
+            response = JsonConvert.DeserializeObject(response); //convert json string back to object
+
+            Assert.AreEqual(response, createAndSignTransactionResponse);
+        }
+
+        [Test]
+        public void testUseOfExpectedUnsignedTxid()
+        {
+            dynamic prepareTransactionResponse = new object();
+            dynamic createAndSignTransactionResponse = new object();
+
+            using (StreamReader r = new StreamReader("./data/prepare_transaction_response_with_blockio_fee_and_expected_unsigned_txid.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+            }
+            using (StreamReader r = new StreamReader("./data/create_and_sign_transaction_response_with_blockio_fee_and_expected_unsigned_txid.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                createAndSignTransactionResponse = JsonConvert.DeserializeObject(json);
+            }
+
+            var response = blockIo.CreateAndSignTransaction(prepareTransactionResponse);
+
+            response = JsonConvert.SerializeObject(response); //convert dynamic object to json string
+            response = JsonConvert.DeserializeObject(response); //convert json string back to object
+
+            Assert.AreEqual(response, createAndSignTransactionResponse);
+
+            // changing expected id
+            prepareTransactionResponse["data"]["expected_unsigned_txid"] = "";
+
+            try
+            {
+                // this should throw an exception since expected tx id is being changed
+                blockIo.CreateAndSignTransaction(prepareTransactionResponse);
+
+            }
+            catch (Exception ex)
+            {
+                Assert.AreEqual("Expected unsigned transaction ID mismatch. Please report this error to support@block.io.", ex.Message);
+            }
         }
     }
 }
