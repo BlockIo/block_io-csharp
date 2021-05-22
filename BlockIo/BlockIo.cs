@@ -180,6 +180,49 @@ namespace BlockIoLib
             return data;
         }
 
+        public object SummarizePreparedTransaction(dynamic data)
+        {
+            dynamic inputs = data["data"]["inputs"];
+            dynamic outputs = data["data"]["outputs"];
+
+            var inputSum = new decimal(0);
+            var blockIoFee = new decimal(0);
+            var changeAmount = new decimal(0);
+            var outputSum = new decimal(0);
+
+            foreach(dynamic input in inputs)
+            {
+                inputSum += Convert.ToDecimal(input["input_value"].ToString());
+            }
+
+            foreach(dynamic output in outputs)
+            {
+                if(output["output_category"].ToString() == "blockio-fee")
+                {
+                    blockIoFee += Convert.ToDecimal(output["output_value"].ToString());
+                } else if (output["output_category"].ToString() == "change")
+                {
+                    changeAmount += Convert.ToDecimal(output["output_value"].ToString());
+                } else
+                {
+                    outputSum += Convert.ToDecimal(output["output_value"].ToString());
+                }
+            }
+
+            decimal networkFee = inputSum - outputSum - changeAmount - blockIoFee;
+
+            dynamic returnObj = new
+            {
+                network = data["data"]["network"],
+                network_fee = networkFee.ToString("F8"),
+                blockio_fee = blockIoFee.ToString("F8"),
+                total_amount_to_send = outputSum.ToString("F8")
+            };
+
+
+            return returnObj;
+        }
+
         public object CreateAndSignTransaction(dynamic data, string[] keys = null)
         {
             var status = data["status"];

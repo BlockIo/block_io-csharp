@@ -343,5 +343,30 @@ namespace BlockIoLib.UnitTests
                 Assert.AreEqual("Expected unsigned transaction ID mismatch. Please report this error to support@block.io.", ex.Message);
             }
         }
+
+        [Test]
+        public void testSummarizePreparedTransaction()
+        {
+            dynamic prepareTransactionResponse = new object();
+            dynamic summarizedPreparedTransactionResponse = new object();
+
+            using (StreamReader r = new StreamReader("./data/prepare_transaction_response_with_blockio_fee_and_expected_unsigned_txid.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+            }
+            using (StreamReader r = new StreamReader("./data/summarize_prepared_transaction_response_with_blockio_fee_and_expected_unsigned_txid.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                summarizedPreparedTransactionResponse = JsonConvert.DeserializeObject(json);
+            }
+
+            var response = blockIo.SummarizePreparedTransaction(prepareTransactionResponse);
+
+            response = JsonConvert.SerializeObject(response); //convert dynamic object to json string
+            response = JsonConvert.DeserializeObject(response); //convert json string back to object
+
+            Assert.AreEqual(response, summarizedPreparedTransactionResponse);
+        }
     }
 }
