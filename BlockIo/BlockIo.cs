@@ -77,8 +77,8 @@ namespace BlockIoLib
             Task<BlockIoResponse<dynamic>> RequestTask = _request(Method, Path, argsObj);
             res = RequestTask.Result;
             
-            if (res.Status == "fail" || res.Data.reference_id == null
-            || res.Data.encrypted_passphrase == null || res.Data.encrypted_passphrase.passphrase == null)
+            if (res.Status == "fail" || res.Data.reference_id == null ||
+		res.Data.encrypted_passphrase == null || res.Data.encrypted_passphrase.passphrase == null)
                 return RequestTask;
 
             if (pin == null)

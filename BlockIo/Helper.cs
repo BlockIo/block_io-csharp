@@ -6,7 +6,7 @@ using System.Linq;
 using System.IO;
 using NBitcoin;
 
-namespace BlockIoLib
+namespace BlockIoLib
 {
     public class Helper
     {
