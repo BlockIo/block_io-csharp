@@ -267,7 +267,7 @@ namespace BlockIoLib
             foreach (dynamic curAddressData in inputAddressData)
             {
                 var addressType = curAddressData["address_type"].ToString();
-                var requiredSigs = short.Parse(curAddressData["required_signatures"].ToString());
+                int requiredSigs = Convert.ToUInt16(curAddressData["required_signatures"].ToString());
 
                 if (addressType == "P2WSH-over-P2SH" || addressType == "WITNESS_V0" || addressType == "P2SH")
                 {
@@ -278,8 +278,8 @@ namespace BlockIoLib
                         curPubKeys[pubKeyIte] = new PubKey(pubkey.ToString());
                         pubKeyIte++;
                     }
-                    int requiredSignatures = Convert.ToUInt16(curAddressData["required_signatures"].ToString());
-                    var P2shMultiSig = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(requiredSignatures, curPubKeys);
+                    
+                    var P2shMultiSig = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(requiredSigs, curPubKeys);
 
                     addrScriptMap.Add(curAddressData["address"].ToString(), P2shMultiSig);
                     addrPubkeysMap.Add(curAddressData["address"].ToString(), curPubKeys);
@@ -290,7 +290,7 @@ namespace BlockIoLib
                     PubKey[] curPubKey = new PubKey[1];
                     curPubKey[0] = new PubKey(curAddressData["public_keys"][0].ToString());
                     addrPubkeysMap.Add(curAddressData["address"].ToString(), curPubKey);
-                    addrRequiredSigs.Add(curAddressData["address"].ToString(), 1);
+                    addrRequiredSigs.Add(curAddressData["address"].ToString(), requiredSigs);
 
                     if(addressType == "P2WPKH-over-P2SH")
                     {
@@ -358,12 +358,8 @@ namespace BlockIoLib
                 if (output["output_category"].ToString() == "change")
                 {
                     txBuilder.SetChange(to_addr);
-                    txBuilder.Send(to_addr, value);
                 }
-                else
-                {
-                    txBuilder.Send(to_addr, value);
-                }
+                txBuilder.Send(to_addr, value);
             }
 
             txBuilder.SendFees(InputOutputDifference.ToString());
