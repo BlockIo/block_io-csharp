@@ -50,6 +50,7 @@ namespace BlockIoLib
         public BlockIoResponse<dynamic> UnarchiveDtrustAddresses(dynamic args = null) { return _request("POST", "unarchive_dtrust_addresses", args).Result; }
         public BlockIoResponse<dynamic> IsValidAddress(dynamic args = null) { return _request("POST", "is_valid_address", args).Result; }
         public BlockIoResponse<dynamic> GetCurrentPrice(dynamic args = null) { return _request("POST", "get_current_price", args).Result; }
+	public BlockIoResponse<dynamic> GetAccountInfo(dynamic args = null) { return _request("POST", "get_account_info", args).Result; }
         public BlockIoResponse<dynamic> PrepareTransaction(dynamic args = null) { return _request("POST", "prepare_transaction", args).Result; }
         public BlockIoResponse<dynamic> PrepareDtrustTransaction(dynamic args = null) { return _request("POST", "prepare_dtrust_transaction", args).Result; }
         public BlockIoResponse<dynamic> SubmitTransaction(dynamic args = null) { return _request("POST", "submit_transaction", args).Result; }
