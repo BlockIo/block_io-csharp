@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
+using System.Linq;
 using BlockIoLib;
 
 // Use litecoin api key
@@ -37,7 +38,7 @@ namespace DTrust
             };
 
             string signers = string.Join(",", PublicKeys);
-            var res = blockIo.GetNewDtrustAddress(new { label = DtrustAddressLabel, public_keys = signers, required_signatures = "3", address_type = "witness_v0" });
+            dynamic res = blockIo.GetNewDtrustAddress(new { label = DtrustAddressLabel, public_keys = signers, required_signatures = "3", address_type = "witness_v0" });
             if (res.Status != "success")
             {
                 Console.WriteLine("Error: " + res.Data);
@@ -52,8 +53,16 @@ namespace DTrust
             }
             Console.WriteLine("Our dTrust Address: " + DtrustAddress);
 
-            res = blockIo.WithdrawFromLabels(new { from_labels = "default", to_address = DtrustAddress, amounts = "0.0002" });
-            Console.WriteLine("Withdrawal Response: " + res.Data);
+	    // send coins from our basic wallet to the new dTrust address
+	    // below is just a quick demo: you will always inspect data from responses yourself to ensure everything's as you expect it
+	    // prepare the transaction
+	    res = blockIo.PrepareTransaction(new { from_labels = "default", to_address = DtrustAddress, amounts = "0.0003" });
+	    Console.WriteLine("Summarized Prepared Transaction: " + blockIo.SummarizePreparedTransaction(res));
+	    // create and sign the transaction
+	    res = blockIo.CreateAndSignTransaction(res);
+	    // submit the transaction to Block.io for its signature and to broadcast to the peer-to-peer network
+	    res = blockIo.SubmitTransaction(new { transaction_data = res });
+	    Console.WriteLine("Withdrawal Response: " + res.Data);
 
             res = blockIo.GetDtrustAddressBalance(new { label = DtrustAddressLabel });
             Console.WriteLine("Dtrust address label Balance: " + res.Data);
@@ -62,23 +71,15 @@ namespace DTrust
 
             Console.WriteLine("Withdrawing from dtrust_address_label to the 'default' label in normal multisig");
 
-            res = blockIo.WithdrawFromDtrustAddress(new { from_labels = DtrustAddressLabel, to_address = normalAddress, amounts = "0.0002" });
-
+	    // prepare the dTrust transaction
+	    res = blockIo.PrepareDtrustTransaction(new { from_labels = DtrustAddressLabel, to_address = normalAddress, amounts = "0.0002" });
+	    Console.WriteLine("Summarized Prepared dTrust Transaction: " + blockIo.SummarizePreparedTransaction(res));
+	    // create and sign the transaction using just three keys (you can use all 4 keys to create the final transaction for broadcasting as well)
+	    res = blockIo.CreateAndSignTransaction(res, PrivKeys.Select(privkey => privkey.ToHex()).ToArray()[0..3]);
+	    // submit the transaction
+	    res = blockIo.SubmitTransaction(new { transaction_data = res });
             Console.WriteLine("Withdraw from Dtrust Address response: " + res.Data);
 
-            int keyIte;
-
-            foreach (dynamic input in res.Data.inputs)
-            {
-                keyIte = 0;
-                foreach (dynamic signer in input.signers)
-                {
-                    signer.signed_data = Helper.SignInputs(PrivKeys[keyIte++], input.data_to_sign.ToString(), signer.signer_public_key.ToString());
-                }
-            }
-            Console.WriteLine("Our Signed Request: " + res.Data);
-            Console.WriteLine("Finalize Withdrawal: ");
-            Console.WriteLine(blockIo.SignAndFinalizeWithdrawal(res.Data.ToString()).Data);
             Console.WriteLine("Get transactions sent by our dtrust_address_label address: ");
             Console.WriteLine(blockIo.GetDtrustTransactions(new { type = "sent", labels = DtrustAddressLabel }).Data);
         }
