@@ -63,88 +63,28 @@ namespace BlockIoLib
             RestClient = new RestClient(ApiUrl) { Authenticator = new BlockIoAuthenticator(this.ApiKey) };
         }
 
-        private Task<BlockIoResponse<dynamic>> _withdraw(string Method, string Path, dynamic args)
-        {
-            BlockIoResponse<dynamic> res = null;
-            dynamic argsObj = args;
-            string pin;
-            if (argsObj.GetType().GetProperty("pin") != null)
-            {
-                pin = argsObj.GetType().GetProperty("pin").GetValue(argsObj, null);
-            }
-            else pin = this.Pin;
-
-            Task<BlockIoResponse<dynamic>> RequestTask = _request(Method, Path, argsObj);
-            res = RequestTask.Result;
-            
-            if (res.Status == "fail" || res.Data.reference_id == null ||
-		res.Data.encrypted_passphrase == null || res.Data.encrypted_passphrase.passphrase == null)
-                return RequestTask;
-
-            if (pin == null)
-            {
-                if (Opts.AllowNoPin)
-                {
-                    return RequestTask;
-                }
-                throw new Exception("Public key mismatch. Invalid Secret PIN detected.");
-            }
-
-            string enrypted_passphrase = res.Data.encrypted_passphrase.passphrase;
-            string aesKey = this.AesKey != null ? this.AesKey : Helper.PinToAesKey(pin);
-            Key privKey = new Key().ExtractKeyFromEncryptedPassphrase(enrypted_passphrase, aesKey);
-            string pubKey = privKey.PubKey.ToHex();
-            if (pubKey != res.Data.encrypted_passphrase.signer_public_key.ToString())
-                throw new Exception("Public key mismatch. Invalid Secret PIN detected.");
-
-            foreach (dynamic input in res.Data.inputs)
-            {
-                foreach (dynamic signer in input.signers)
-                {
-                    signer.signed_data = Helper.SignInputs(privKey, input.data_to_sign.ToString(), pubKey);
-                }
-            }
-
-            dynamic signAndFinalizeRequestJson = new { res.Data.reference_id, res.Data.inputs };
-
-            return _request(Method, "sign_and_finalize_withdrawal", JsonConvert.SerializeObject(signAndFinalizeRequestJson));
-            
-        }
-
-        private Task<BlockIoResponse<dynamic>> _sweep(string Method, string Path, dynamic args)
-        {
+	private Task<BlockIoResponse<dynamic>> _prepare_sweep_transaction(string Method, string Path, dynamic args)
+        { // handle extraction of public key from given WIF private key, store the key for later use, and return the response for prepare_sweep_transaction
+	    
             Key KeyFromWif = null;
             BlockIoResponse<dynamic> res = null;
             var argsObj = args;
 
-            if(argsObj.GetType().GetProperty("to_address") == null) throw new Exception("Missing mandatory private_key argument.");
+            if(argsObj.GetType().GetProperty("private_key") == null) throw new Exception("Missing mandatory private_key argument.");
+            if(argsObj.GetType().GetProperty("to_address") == null) throw new Exception("Missing mandatory to_address argument.");
 
             string PrivKeyStr = argsObj.GetType().GetProperty("private_key").GetValue(argsObj, null);
             KeyFromWif = new Key().FromWif(PrivKeyStr);
             string to_address = argsObj.GetType().GetProperty("to_address").GetValue(argsObj, null);
-            string from_address = argsObj.GetType().GetProperty("from_address").GetValue(argsObj, null);
-            argsObj = new { to_address, from_address, public_key = KeyFromWif.PubKey.ToHex() };
+            argsObj = new { to_address, public_key = KeyFromWif.PubKey.ToHex() };
             args = argsObj;
 
-            Task<BlockIoResponse<dynamic>> RequestTask = _request(Method, Path, args);
-            res = RequestTask.Result;
-            
-            if (res.Data.reference_id == null)
-                return RequestTask;
-            foreach (dynamic input in res.Data.inputs)
-            {
-                foreach (dynamic signer in input.signers)
-                {
-                    signer.signed_data = Helper.SignInputs(KeyFromWif, input.data_to_sign.ToString(), argsObj.public_key.ToString());
-                }
-            }
-
-            dynamic signAndFinalizeRequestJson = new { res.Data.reference_id, res.Data.inputs };
-
-            return _request(Method, "sign_and_finalize_sweep", JsonConvert.SerializeObject(signAndFinalizeRequestJson));
+	    userKeys.Add(KeyFromWif.PubKey.ToHex(), KeyFromWif);
+	    
+	    return _request(Method, Path, args).Result;
             
         }
-
+	
         public BlockIoResponse<dynamic> ValidateKey()
         {
             return _request("GET", "get_balance").Result;
@@ -156,16 +96,11 @@ namespace BlockIoLib
 
             var request = new RestRequest(Path, (Method)Enum.Parse(typeof(Method), Method));
 
-            if (Method == "POST" && !Path.Contains("sign_and_finalize"))
+            if (Method == "POST")
             {
                 request.AddJsonBody(args);
             }
-            else
-            {
-                request.AddJsonBody(new { 
-                    signature_data = args
-                });
-            }
+	    request.AddHeader("Content-Type", "application/json");
             request.AddHeader("Accept", "application/json");
             request.AddHeader("User-Agent", UserAgent);
             var response = Method == "POST" ? await RestClient.ExecutePostAsync(request) : await RestClient.ExecuteGetAsync(request);
@@ -180,10 +115,10 @@ namespace BlockIoLib
             return data;
         }
 
-        public object SummarizePreparedTransaction(dynamic data)
+        public object SummarizePreparedTransaction(BlockIoResponse<dynamic> data)
         {
-            dynamic inputs = data["data"]["inputs"];
-            dynamic outputs = data["data"]["outputs"];
+            dynamic inputs = data.Data["inputs"];
+            dynamic outputs = data.Data["outputs"];
 
             var inputSum = new decimal(0);
             var blockIoFee = new decimal(0);
@@ -213,7 +148,7 @@ namespace BlockIoLib
 
             dynamic returnObj = new
             {
-                network = data["data"]["network"],
+                network = data.Data["network"],
                 network_fee = networkFee.ToString("F8"),
                 blockio_fee = blockIoFee.ToString("F8"),
                 total_amount_to_send = outputSum.ToString("F8")
@@ -223,17 +158,17 @@ namespace BlockIoLib
             return returnObj;
         }
 
-        public object CreateAndSignTransaction(dynamic data, string[] keys = null)
+        public object CreateAndSignTransaction(BlockIoResponse<dynamic> data, string[] keys = null)
         {
-            var status = data["status"];
-            dynamic dataObj = data["data"];
+	    var status = data.Status;
+	    dynamic dataObj = data.Data;
             var networkString = dataObj["network"].ToString();
-            if (network == null && !object.ReferenceEquals(status, null) &&
-                status == "success" && !object.ReferenceEquals(dataObj, null) &&
-                !object.ReferenceEquals(networkString, null))
+	    if (network == null && !object.ReferenceEquals(status, null) &&
+		status == "success" && !object.ReferenceEquals(dataObj, null) &&
+		!object.ReferenceEquals(networkString, null))
             {
                 network = getNetwork(networkString);
-            }
+	    }
             dynamic inputs = dataObj["inputs"];
             dynamic outputs = dataObj["outputs"];
             dynamic inputAddressData = dataObj["input_address_data"];

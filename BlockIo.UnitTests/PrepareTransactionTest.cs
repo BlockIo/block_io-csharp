@@ -39,7 +39,7 @@ namespace BlockIoLib.UnitTests
             using (StreamReader r = new StreamReader("./data/prepare_transaction_response.json"))
             {
                 string json = r.ReadToEnd().Replace(" ", "");
-                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+                prepareTransactionResponse = JsonConvert.DeserializeObject<BlockIoResponse<dynamic>>(json);
             }
             using (StreamReader r = new StreamReader("./data/create_and_sign_transaction_response.json"))
             {
@@ -64,7 +64,7 @@ namespace BlockIoLib.UnitTests
             using (StreamReader r = new StreamReader("./data/prepare_sweep_transaction_response_p2wpkh.json"))
             {
                 string json = r.ReadToEnd().Replace(" ", "");
-                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+                prepareTransactionResponse = JsonConvert.DeserializeObject<BlockIoResponse<dynamic>>(json);
             }
             using (StreamReader r = new StreamReader("./data/create_and_sign_transaction_response_sweep_p2wpkh.json"))
             {
@@ -89,7 +89,7 @@ namespace BlockIoLib.UnitTests
             using (StreamReader r = new StreamReader("./data/prepare_sweep_transaction_response_p2wpkh_over_p2sh.json"))
             {
                 string json = r.ReadToEnd().Replace(" ", "");
-                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+                prepareTransactionResponse = JsonConvert.DeserializeObject<BlockIoResponse<dynamic>>(json);
             }
             using (StreamReader r = new StreamReader("./data/create_and_sign_transaction_response_sweep_p2wpkh_over_p2sh.json"))
             {
@@ -114,7 +114,7 @@ namespace BlockIoLib.UnitTests
             using (StreamReader r = new StreamReader("./data/prepare_sweep_transaction_response_p2pkh.json"))
             {
                 string json = r.ReadToEnd().Replace(" ", "");
-                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+                prepareTransactionResponse = JsonConvert.DeserializeObject<BlockIoResponse<dynamic>>(json);
             }
             using (StreamReader r = new StreamReader("./data/create_and_sign_transaction_response_sweep_p2pkh.json"))
             {
@@ -139,7 +139,7 @@ namespace BlockIoLib.UnitTests
             using (StreamReader r = new StreamReader("./data/prepare_dtrust_transaction_response_witness_v0.json"))
             {
                 string json = r.ReadToEnd().Replace(" ", "");
-                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+                prepareTransactionResponse = JsonConvert.DeserializeObject<BlockIoResponse<dynamic>>(json);
             }
             using (StreamReader r = new StreamReader("./data/create_and_sign_transaction_response_dtrust_witness_v0_4_of_5_keys.json"))
             {
@@ -164,7 +164,7 @@ namespace BlockIoLib.UnitTests
             using (StreamReader r = new StreamReader("./data/prepare_dtrust_transaction_response_witness_v0.json"))
             {
                 string json = r.ReadToEnd().Replace(" ", "");
-                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+                prepareTransactionResponse = JsonConvert.DeserializeObject<BlockIoResponse<dynamic>>(json);
             }
             using (StreamReader r = new StreamReader("./data/create_and_sign_transaction_response_dtrust_witness_v0_3_of_5_keys.json"))
             {
@@ -189,7 +189,7 @@ namespace BlockIoLib.UnitTests
             using (StreamReader r = new StreamReader("./data/prepare_dtrust_transaction_response_p2wsh_over_p2sh.json"))
             {
                 string json = r.ReadToEnd().Replace(" ", "");
-                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+                prepareTransactionResponse = JsonConvert.DeserializeObject<BlockIoResponse<dynamic>>(json);
             }
             using (StreamReader r = new StreamReader("./data/create_and_sign_transaction_response_dtrust_p2wsh_over_p2sh_4_of_5_keys.json"))
             {
@@ -214,7 +214,7 @@ namespace BlockIoLib.UnitTests
             using (StreamReader r = new StreamReader("./data/prepare_dtrust_transaction_response_p2wsh_over_p2sh.json"))
             {
                 string json = r.ReadToEnd().Replace(" ", "");
-                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+                prepareTransactionResponse = JsonConvert.DeserializeObject<BlockIoResponse<dynamic>>(json);
             }
             using (StreamReader r = new StreamReader("./data/create_and_sign_transaction_response_dtrust_p2wsh_over_p2sh_3_of_5_keys.json"))
             {
@@ -239,7 +239,7 @@ namespace BlockIoLib.UnitTests
             using (StreamReader r = new StreamReader("./data/prepare_dtrust_transaction_response_p2sh.json"))
             {
                 string json = r.ReadToEnd().Replace(" ", "");
-                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+                prepareTransactionResponse = JsonConvert.DeserializeObject<BlockIoResponse<dynamic>>(json);
             }
             using (StreamReader r = new StreamReader("./data/create_and_sign_transaction_response_dtrust_p2sh_4_of_5_keys.json"))
             {
@@ -264,7 +264,7 @@ namespace BlockIoLib.UnitTests
             using (StreamReader r = new StreamReader("./data/prepare_dtrust_transaction_response_p2sh.json"))
             {
                 string json = r.ReadToEnd().Replace(" ", "");
-                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+                prepareTransactionResponse = JsonConvert.DeserializeObject<BlockIoResponse<dynamic>>(json);
             }
             using (StreamReader r = new StreamReader("./data/create_and_sign_transaction_response_dtrust_p2sh_3_of_5_keys.json"))
             {
@@ -289,7 +289,7 @@ namespace BlockIoLib.UnitTests
             using (StreamReader r = new StreamReader("./data/prepare_dtrust_transaction_response_p2sh.json"))
             {
                 string json = r.ReadToEnd().Replace(" ", "");
-                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+                prepareTransactionResponse = JsonConvert.DeserializeObject<BlockIoResponse<dynamic>>(json);
             }
             using (StreamReader r = new StreamReader("./data/create_and_sign_transaction_response_dtrust_p2sh_3_of_5_keys.json"))
             {
@@ -314,7 +314,7 @@ namespace BlockIoLib.UnitTests
             using (StreamReader r = new StreamReader("./data/prepare_transaction_response_with_blockio_fee_and_expected_unsigned_txid.json"))
             {
                 string json = r.ReadToEnd().Replace(" ", "");
-                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+                prepareTransactionResponse = JsonConvert.DeserializeObject<BlockIoResponse<dynamic>>(json);
             }
             using (StreamReader r = new StreamReader("./data/create_and_sign_transaction_response_with_blockio_fee_and_expected_unsigned_txid.json"))
             {
@@ -330,7 +330,7 @@ namespace BlockIoLib.UnitTests
             Assert.AreEqual(response, createAndSignTransactionResponse);
 
             // changing expected id
-            prepareTransactionResponse["data"]["expected_unsigned_txid"] = "";
+            prepareTransactionResponse.Data["expected_unsigned_txid"] = "";
 
             try
             {
@@ -353,7 +353,7 @@ namespace BlockIoLib.UnitTests
             using (StreamReader r = new StreamReader("./data/prepare_transaction_response_with_blockio_fee_and_expected_unsigned_txid.json"))
             {
                 string json = r.ReadToEnd().Replace(" ", "");
-                prepareTransactionResponse = JsonConvert.DeserializeObject(json);
+                prepareTransactionResponse = JsonConvert.DeserializeObject<BlockIoResponse<dynamic>>(json);
             }
             using (StreamReader r = new StreamReader("./data/summarize_prepared_transaction_response_with_blockio_fee_and_expected_unsigned_txid.json"))
             {

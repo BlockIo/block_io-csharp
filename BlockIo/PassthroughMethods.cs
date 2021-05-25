@@ -18,7 +18,6 @@ namespace BlockIoLib
         public BlockIoResponse<dynamic> GetUserAddress(dynamic args = null) { return _request("POST", "get_user_address", args).Result; }
         public BlockIoResponse<dynamic> GetUserReceived(dynamic args = null) { return _request("POST", "get_user_received", args).Result; }
         public BlockIoResponse<dynamic> GetTransactions(dynamic args = null) { return _request("POST", "get_transactions", args).Result; }
-        public BlockIoResponse<dynamic> SignAndFinalizeWithdrawal(dynamic args = null) { return _request("POST", "sign_and_finalize_withdrawal", args).Result; }
         public BlockIoResponse<dynamic> GetNewDtrustAddress(dynamic args = null) { return _request("POST", "get_new_dtrust_address", args).Result; }
         public BlockIoResponse<dynamic> GetMyDtrustAddresses(dynamic args = null) { return _request("POST", "get_my_dtrust_addresses", args).Result; }
         public BlockIoResponse<dynamic> GetDtrustAddressByLabel(dynamic args = null) { return _request("POST", "get_dtrust_address_by_label", args).Result; }
@@ -51,6 +50,8 @@ namespace BlockIoLib
         public BlockIoResponse<dynamic> UnarchiveDtrustAddresses(dynamic args = null) { return _request("POST", "unarchive_dtrust_addresses", args).Result; }
         public BlockIoResponse<dynamic> IsValidAddress(dynamic args = null) { return _request("POST", "is_valid_address", args).Result; }
         public BlockIoResponse<dynamic> GetCurrentPrice(dynamic args = null) { return _request("POST", "get_current_price", args).Result; }
-        public BlockIoResponse<dynamic> GetAccountInfo(dynamic args = null) { return _request("POST", "get_account_info", args).Result; }
+        public BlockIoResponse<dynamic> PrepareTransaction(dynamic args = null) { return _request("POST", "prepare_transaction", args).Result; }
+        public BlockIoResponse<dynamic> PrepareDtrustTransaction(dynamic args = null) { return _request("POST", "prepare_dtrust_transaction", args).Result; }
+        public BlockIoResponse<dynamic> SubmitTransaction(dynamic args = null) { return _request("POST", "submit_transaction", args).Result; }
     }
 }

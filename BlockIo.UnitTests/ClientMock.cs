@@ -188,7 +188,7 @@ namespace BlockIoLib.UnitTests
             stub.Stop();
         }
 
-
+	/*
         [Test]
         public void Withdraw()
         {
@@ -217,6 +217,6 @@ namespace BlockIoLib.UnitTests
             Assert.AreEqual("success", response.Status);
             Assert.IsNotNull(response.Data);
         }
-
+	*/
     }
 }

@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sweeper", "Examples\Sweeper
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DTrust", "Examples\DTrust\DTrust.csproj", "{DBD52E06-B272-48CD-83BE-CB0377466F28}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaxWithdrawal", "Examples\MaxWithdrawal\MaxWithdrawal.csproj", "{A67EBBE6-41AE-48F6-8F58-97B9883F7B60}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
