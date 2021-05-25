@@ -63,7 +63,7 @@ namespace BlockIoLib
             RestClient = new RestClient(ApiUrl) { Authenticator = new BlockIoAuthenticator(this.ApiKey) };
         }
 
-	private Task<BlockIoResponse<dynamic>> _prepare_sweep_transaction(string Method, string Path, dynamic args)
+	private BlockIoResponse<dynamic> _prepare_sweep_transaction(string Method, string Path, dynamic args)
         { // handle extraction of public key from given WIF private key, store the key for later use, and return the response for prepare_sweep_transaction
 	    
             Key KeyFromWif = null;
