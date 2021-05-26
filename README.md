@@ -31,15 +31,6 @@ It's super easy to get started. In your code, do this:
   // print all addresses on this account
   var data = blockIo.GetMyAddresses().Data;
 
-  // print the response of a withdrawal request
-  var data = blockIo.Withdraw(
-    new {
-      pin="secret_pin",
-      from_labels="label1,label2",
-      to_label="label3",
-      amount="50.0"
-    }
-  ).Data;   
 ```
 
 ##### A note on passing payload to requests:
