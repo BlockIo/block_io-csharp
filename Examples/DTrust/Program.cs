@@ -24,12 +24,19 @@ namespace DTrust
             string DtrustAddress = null;
             string DtrustAddressLabel = "dTrust1_witness_v0";
             BlockIo blockIo = new BlockIo(envReader.GetStringValue("API_KEY"), envReader.GetStringValue("PIN"));
+
+	    // WARNING: THIS IS JUST A DEMO
+	    // private keys must always be generated using secure random number generators
+	    // for instance, by using new Key(true)
+	    // ofcourse, you will store the private keys yourself before using them anywhere
             List<Key> PrivKeys = new List<Key>() {
                 new Key().ExtractKeyFromPassphraseString("verysecretkey1"),
                 new Key().ExtractKeyFromPassphraseString("verysecretkey2"),
                 new Key().ExtractKeyFromPassphraseString("verysecretkey3"),
                 new Key().ExtractKeyFromPassphraseString("verysecretkey4")
             };
+	    
+	    // the public keys for our private keys
             List<string> PublicKeys = new List<string>() {
                 PrivKeys[0].PubKey.ToHex(),
                 PrivKeys[1].PubKey.ToHex(),
@@ -37,8 +44,10 @@ namespace DTrust
                 PrivKeys[3].PubKey.ToHex()
             };
 
+	    // get the new dTrust address with 3 of our 4 keys as required signers
             string signers = string.Join(",", PublicKeys);
             dynamic res = blockIo.GetNewDtrustAddress(new { label = DtrustAddressLabel, public_keys = signers, required_signatures = "3", address_type = "witness_v0" });
+
             if (res.Status != "success")
             {
                 Console.WriteLine("Error: " + res.Data);
@@ -58,8 +67,10 @@ namespace DTrust
 	    // prepare the transaction
 	    res = blockIo.PrepareTransaction(new { from_labels = "default", to_address = DtrustAddress, amounts = "0.0003" });
 	    Console.WriteLine("Summarized Prepared Transaction: " + blockIo.SummarizePreparedTransaction(res));
+	    
 	    // create and sign the transaction
 	    res = blockIo.CreateAndSignTransaction(res);
+	    
 	    // submit the transaction to Block.io for its signature and to broadcast to the peer-to-peer network
 	    res = blockIo.SubmitTransaction(new { transaction_data = res });
 	    Console.WriteLine("Withdrawal Response: " + res.Data);
@@ -74,8 +85,10 @@ namespace DTrust
 	    // prepare the dTrust transaction
 	    res = blockIo.PrepareDtrustTransaction(new { from_labels = DtrustAddressLabel, to_address = normalAddress, amounts = "0.0002" });
 	    Console.WriteLine("Summarized Prepared dTrust Transaction: " + blockIo.SummarizePreparedTransaction(res));
+	    
 	    // create and sign the transaction using just three keys (you can use all 4 keys to create the final transaction for broadcasting as well)
 	    res = blockIo.CreateAndSignTransaction(res, PrivKeys.Select(privkey => privkey.ToHex()).ToArray()[0..3]);
+	    
 	    // submit the transaction
 	    res = blockIo.SubmitTransaction(new { transaction_data = res });
             Console.WriteLine("Withdraw from Dtrust Address response: " + res.Data);
