@@ -34,6 +34,16 @@ namespace BlockIoLib.UnitTests
             Assert.AreEqual(aesKey, controlData);
         }
 
+	[Test]
+	public void PinToAesWithSalt()
+	{
+	    var salt = "922445847c173e90667a19d90729e1fb";
+	    var s_pin = "deadbeef";
+	    var encryptionKey = Helper.PinToAesKey(s_pin, salt, 500000);
+	    Console.WriteLine("encryptionKey={0}", encryptionKey);
+	    Assert.AreEqual(Helper.ByteArrayToHexString(Convert.FromBase64String(encryptionKey)), "f206403c6bad20e1c8cb1f3318e17cec5b2da0560ed6c7b26826867452534172");
+	}
+	
         [Test]
         public void Encrypt()
         {

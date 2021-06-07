@@ -45,24 +45,25 @@ namespace BlockIoLib
             return BitConverter.ToString(ba).Replace("-", "").ToLower();
         }
 
-        public static string PinToAesKey(string pin)
+        public static string PinToAesKey(string pin, string salt = "", int iterations = 2048, int phase1_key_length = 16, int phase2_key_length = 32, string hash_function = "SHA256")
         {
-            byte[] salt = new byte[0]; //empty salt
 
+	    if (hash_function != "SHA256")
+		throw new Exception("Unknown hash function specified. Are you using current version of this library?");
+	    
             string firstHash = ByteArrayToHexString(KeyDerivation.Pbkdf2(
             password: pin,
-            salt: salt,
+            salt: Encoding.ASCII.GetBytes(salt), // TODO: why is this different from HexStringToByteArray?
             prf: KeyDerivationPrf.HMACSHA256,
-            iterationCount: 1024,
-            numBytesRequested: 16));
-
+            iterationCount: iterations/2,
+            numBytesRequested: phase1_key_length));
 
             byte[] key = KeyDerivation.Pbkdf2(
             password: firstHash.ToLower(),
-            salt: salt,
+            salt: Encoding.ASCII.GetBytes(salt),
             prf: KeyDerivationPrf.HMACSHA256,
-            iterationCount: 1024,
-            numBytesRequested: 32);
+            iterationCount: iterations/2,
+            numBytesRequested: phase2_key_length);
 
             return Convert.ToBase64String(key);
         }
