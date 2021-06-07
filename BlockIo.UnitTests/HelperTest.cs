@@ -45,17 +45,33 @@ namespace BlockIoLib.UnitTests
 	}
 	
         [Test]
-        public void Encrypt()
+        public void EncryptWithAes256Ecb()
         {
             var encryptedData = Helper.Encrypt(controlClearText, aesKey);
             Assert.AreEqual(encryptedData, controlCipherText);
         }
 
         [Test]
-        public void Decrypt()
+        public void DecryptWithAes256Ecb()
         {
             var decryptedData = Helper.Decrypt(controlCipherText, aesKey);
             Assert.AreEqual(decryptedData, controlClearText);
         }
+
+	[Test]
+	public void EncryptWithAes256Cbc()
+	{
+	    var encryptionKey = Helper.PinToAesKey("deadbeef", "922445847c173e90667a19d90729e1fb", 500000);
+	    var encryptedData = Helper.Encrypt("beadbeef", encryptionKey, "11bc22166c8cf8560e5fa7e5c622bb0f", "AES-256-CBC");
+	    Assert.AreEqual(encryptedData, "LExu1rUAtIBOekslc328Lw==");
+	}
+
+	[Test]
+	public void DecryptWithAes256Cbc()
+	{
+	    var encryptionKey = Helper.PinToAesKey("deadbeef", "922445847c173e90667a19d90729e1fb", 500000);
+	    var encryptedData = "LExu1rUAtIBOekslc328Lw==";
+	    Assert.AreEqual(Helper.Decrypt(encryptedData, encryptionKey, "11bc22166c8cf8560e5fa7e5c622bb0f", "AES-256-CBC"), "beadbeef");
+	}
     }
 }
