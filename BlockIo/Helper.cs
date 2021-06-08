@@ -12,31 +12,47 @@ namespace BlockIoLib
     {
         public static string Encrypt(string data, string key, string iv = null, string cipher_type = "AES-256-ECB", string auth_data = null)
         {
-            using (AesCryptoServiceProvider csp = new AesCryptoServiceProvider())
-            {
-                byte[] keyArr = Convert.FromBase64String(key);
-                byte[] KeyArrBytes32Value = new byte[32];
-                Array.Copy(keyArr, KeyArrBytes32Value, 32);
-                csp.Key = keyArr;
 
-		if (cipher_type == "AES-256-ECB") {
-		    csp.Padding = PaddingMode.PKCS7;
-		    csp.Mode = CipherMode.ECB;
-		} else if (cipher_type == "AES-256-CBC") {
-		    csp.Padding = PaddingMode.PKCS7;
-		    csp.Mode = CipherMode.CBC;
-		} else if (cipher_type == "AES-256-GCM") {
-		    // TODO using AesGcm class: https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.aesgcm.encrypt?view=netcore-3.1#System_Security_Cryptography_AesGcm_Encrypt_System_Byte___System_Byte___System_Byte___System_Byte___System_Byte___
-		} else {
-		    throw new Exception("Unsupported cipher " + cipher_type);
+	    byte[] keyArr = Convert.FromBase64String(key);
+	    byte[] KeyArrBytes32Value = new byte[32];
+	    Array.Copy(keyArr, KeyArrBytes32Value, 32);
+	    
+	    if (cipher_type != "AES-256-GCM") {
+		using (AesCryptoServiceProvider csp = new AesCryptoServiceProvider())
+		{
+		    csp.Key = keyArr;
+		    
+		    if (cipher_type == "AES-256-ECB") {
+			csp.Padding = PaddingMode.PKCS7;
+			csp.Mode = CipherMode.ECB;
+		    } else if (cipher_type == "AES-256-CBC") {
+			csp.Padding = PaddingMode.PKCS7;
+			csp.Mode = CipherMode.CBC;
+		    } else {
+			throw new Exception("Unsupported cipher " + cipher_type);
+		    }
+		    
+		    if (iv != null)
+			csp.IV = HexStringToByteArray(iv);
+		    
+		    ICryptoTransform encrypter = csp.CreateEncryptor();
+		    return Convert.ToBase64String(encrypter.TransformFinalBlock(ASCIIEncoding.UTF8.GetBytes(data), 0, ASCIIEncoding.UTF8.GetBytes(data).Length));
 		}
-		
-		if (iv != null)
-		    csp.IV = HexStringToByteArray(iv);
+	    } else {
+		// AES-256-GCM
 
-                ICryptoTransform encrypter = csp.CreateEncryptor();
-                return Convert.ToBase64String(encrypter.TransformFinalBlock(ASCIIEncoding.UTF8.GetBytes(data), 0, ASCIIEncoding.UTF8.GetBytes(data).Length));
-            }
+		using (var cipher = new AesGcm(keyArr))
+		{
+		    byte[] authTag = new byte[16];
+		    byte[] cipherText = new byte[ASCIIEncoding.UTF8.GetBytes(data).Length];
+		    byte[] nonce = HexStringToByteArray(iv);
+		    byte[] associatedData = HexStringToByteArray(auth_data);
+		    
+		    cipher.Encrypt(nonce, ASCIIEncoding.UTF8.GetBytes(data), cipherText, authTag, associatedData);
+
+		    return Convert.ToBase64String(cipherText);
+		}
+	    }
         }
 
         public static string Decrypt(string data, string key, string iv = null, string cipher_type = "AES-256-ECB", string auth_tag = null, string auth_data = null)

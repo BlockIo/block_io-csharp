@@ -73,5 +73,14 @@ namespace BlockIoLib.UnitTests
 	    var encryptedData = "LExu1rUAtIBOekslc328Lw==";
 	    Assert.AreEqual(Helper.Decrypt(encryptedData, encryptionKey, "11bc22166c8cf8560e5fa7e5c622bb0f", "AES-256-CBC"), "beadbeef");
 	}
+
+    	[Test]
+	public void EncryptWithAes256Gcm()
+	{
+	    var encryptionKey = Helper.PinToAesKey("deadbeef", "922445847c173e90667a19d90729e1fb", 500000);
+	    var encryptedData = Helper.Encrypt("beadbeef", encryptionKey, "a57414b88b67f977829cbdca", "AES-256-GCM", "");
+	    Assert.AreEqual(encryptedData, "ELV56Z57KoA=");
+	}
+
     }
 }
