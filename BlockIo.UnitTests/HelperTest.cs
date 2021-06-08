@@ -34,53 +34,79 @@ namespace BlockIoLib.UnitTests
             Assert.AreEqual(aesKey, controlData);
         }
 
-	[Test]
-	public void PinToAesWithSalt()
-	{
-	    var salt = "922445847c173e90667a19d90729e1fb";
-	    var s_pin = "deadbeef";
-	    var encryptionKey = Helper.PinToAesKey(s_pin, salt, 500000);
-	    Console.WriteLine("encryptionKey={0}", encryptionKey);
-	    Assert.AreEqual(Helper.ByteArrayToHexString(Convert.FromBase64String(encryptionKey)), "f206403c6bad20e1c8cb1f3318e17cec5b2da0560ed6c7b26826867452534172");
-	}
-	
+		[Test]
+		public void PinToAesWithSalt()
+		{
+			var salt = "922445847c173e90667a19d90729e1fb";
+			var s_pin = "deadbeef";
+			var encryptionKey = Helper.PinToAesKey(s_pin, salt, 500000);
+			Console.WriteLine("encryptionKey={0}", encryptionKey);
+			Assert.AreEqual(Helper.ByteArrayToHexString(Convert.FromBase64String(encryptionKey)), "f206403c6bad20e1c8cb1f3318e17cec5b2da0560ed6c7b26826867452534172");
+		}
+		
         [Test]
         public void EncryptWithAes256Ecb()
         {
             var encryptedData = Helper.Encrypt(controlClearText, aesKey);
-            Assert.AreEqual(encryptedData, controlCipherText);
+            Assert.AreEqual(encryptedData["aes_cipher_text"], controlCipherText);
         }
-
+		
         [Test]
         public void DecryptWithAes256Ecb()
         {
             var decryptedData = Helper.Decrypt(controlCipherText, aesKey);
             Assert.AreEqual(decryptedData, controlClearText);
         }
-
-	[Test]
-	public void EncryptWithAes256Cbc()
-	{
-	    var encryptionKey = Helper.PinToAesKey("deadbeef", "922445847c173e90667a19d90729e1fb", 500000);
-	    var encryptedData = Helper.Encrypt("beadbeef", encryptionKey, "11bc22166c8cf8560e5fa7e5c622bb0f", "AES-256-CBC");
-	    Assert.AreEqual(encryptedData, "LExu1rUAtIBOekslc328Lw==");
-	}
-
-	[Test]
-	public void DecryptWithAes256Cbc()
-	{
-	    var encryptionKey = Helper.PinToAesKey("deadbeef", "922445847c173e90667a19d90729e1fb", 500000);
-	    var encryptedData = "LExu1rUAtIBOekslc328Lw==";
-	    Assert.AreEqual(Helper.Decrypt(encryptedData, encryptionKey, "11bc22166c8cf8560e5fa7e5c622bb0f", "AES-256-CBC"), "beadbeef");
-	}
-
+		
+		[Test]
+		public void EncryptWithAes256Cbc()
+		{
+			var encryptionKey = Helper.PinToAesKey("deadbeef", "922445847c173e90667a19d90729e1fb", 500000);
+			var encryptedData = Helper.Encrypt("beadbeef", encryptionKey, "11bc22166c8cf8560e5fa7e5c622bb0f", "AES-256-CBC");
+			Assert.AreEqual(encryptedData["aes_cipher_text"], "LExu1rUAtIBOekslc328Lw==");
+		}
+		
+		[Test]
+		public void DecryptWithAes256Cbc()
+		{
+			var encryptionKey = Helper.PinToAesKey("deadbeef", "922445847c173e90667a19d90729e1fb", 500000);
+			var encryptedData = "LExu1rUAtIBOekslc328Lw==";
+			Assert.AreEqual(Helper.Decrypt(encryptedData, encryptionKey, "11bc22166c8cf8560e5fa7e5c622bb0f", "AES-256-CBC"), "beadbeef");
+		}
+		
     	[Test]
-	public void EncryptWithAes256Gcm()
-	{
-	    var encryptionKey = Helper.PinToAesKey("deadbeef", "922445847c173e90667a19d90729e1fb", 500000);
-	    var encryptedData = Helper.Encrypt("beadbeef", encryptionKey, "a57414b88b67f977829cbdca", "AES-256-GCM", "");
-	    Assert.AreEqual(encryptedData, "ELV56Z57KoA=");
-	}
+		public void EncryptWithAes256Gcm()
+		{
+			var encryptionKey = Helper.PinToAesKey("deadbeef", "922445847c173e90667a19d90729e1fb", 500000);
+			var encryptedData = Helper.Encrypt("beadbeef", encryptionKey, "a57414b88b67f977829cbdca", "AES-256-GCM", "");
+			Assert.AreEqual(encryptedData["aes_cipher_text"], "ELV56Z57KoA=");
+			Assert.AreEqual(encryptedData["aes_auth_tag"], "adeb7dfe53027bdda5824dc524d5e55a");
+		}
+		
+		[Test]
+		public void DecryptWithAes256Gcm()
+		{
+			var encryptionKey = Helper.PinToAesKey("deadbeef", "922445847c173e90667a19d90729e1fb", 500000);
+			var encryptedData = "ELV56Z57KoA=";
+			var authTag = "adeb7dfe53027bdda5824dc524d5e55a";
+			Assert.AreEqual(Helper.Decrypt(encryptedData, encryptionKey, "a57414b88b67f977829cbdca", "AES-256-GCM", authTag, ""), "beadbeef");
+		}
+		
+		[Test]
+		public void DecryptWithAes256GcmSmallAuthTag()
+		{
+			var encryptionKey = Helper.PinToAesKey("deadbeef", "922445847c173e90667a19d90729e1fb", 500000);
+			var encryptedData = "ELV56Z57KoA=";
+			var authTag = "adeb7dfe53027bdda5824dc524d5e5";
 
+			try {
+				Helper.Decrypt(encryptedData, encryptionKey, "a57414b88b67f977829cbdca", "AES-256-GCM", authTag, "");
+				Assert.Fail("Test failed.");
+			} catch (Exception ex) {
+				Assert.AreEqual(ex.Message, "Auth tag must be 16 bytes exactly.");
+			}
+		}
+		
     }
+
 }
