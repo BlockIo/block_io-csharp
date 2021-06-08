@@ -246,33 +246,36 @@ namespace BlockIoLib
                     inputCoins[i] = inputCoins[i].ToScriptCoin(addrScriptMap[inputAddrs[i]]);
                 }
             }
-            string encryptionKey;
-            if (Pin != null && Pin != "")
-            {
-                encryptionKey = Helper.PinToAesKey(Pin);
-                if (!object.ReferenceEquals(dataObj["user_key"], null) && !userKeys.ContainsKey(dataObj["user_key"]["public_key"].ToString()))
-                {
-                    string pubkeyStr = dataObj["user_key"]["public_key"].ToString();
-
-                    Key key = new Key().ExtractKeyFromEncryptedPassphrase(dataObj["user_key"]["encrypted_passphrase"].ToString(), encryptionKey);
-
-                    if (key.PubKey.ToHex() != pubkeyStr)
-                    {
-                        throw new Exception("Fail: Invalid Secret PIN provided.");
-                    }
-
-                    userKeys.Add(pubkeyStr, key);
-                }
-            }
 
             if (keys != null)
-            {
+            { // user provided some keys, let's index them
                 foreach (string key in keys)
                 {
                     Key userKey = new Key().FromHex(key);
                     
                     userKeys.Add(userKey.PubKey.ToHex(), userKey);
                 }
+            }
+
+			if (!object.ReferenceEquals(dataObj["user_key"], null) && !userKeys.ContainsKey(dataObj["user_key"]["public_key"].ToString()))
+			{ // we don't have the key to sign for transaction yet
+				
+				if (Pin != null && Pin != "")
+				{ // use the user_key to extract private key dynamically
+					
+                    string pubkeyStr = dataObj["user_key"]["public_key"].ToString();
+					Key key = new Key().DynamicExtractKey(dataObj["user_key"], Pin);
+
+					if (pubkeyStr != key.PubKey.ToHex())
+                        throw new Exception("Fail: Invalid Secret PIN provided.");
+
+					// we have the key, let's save it for later use
+                    userKeys.Add(pubkeyStr, key);
+					
+				} else {
+					throw new Exception("Fail: No PIN provided to decrypt private key.");
+				}
+				
             }
 
             Key[] userKeysArr = new Key[userKeys.Count];
