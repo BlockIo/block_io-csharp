@@ -118,7 +118,7 @@ namespace BlockIoLib
             return data;
         }
 
-        public object SummarizePreparedTransaction(BlockIoResponse<dynamic> data)
+        public object SummarizePreparedTransaction(BlockIoResponse<dynamic> data, CultureInfo ResultCulture = null)
         {
             dynamic inputs = data.Data["inputs"];
             dynamic outputs = data.Data["outputs"];
@@ -128,6 +128,10 @@ namespace BlockIoLib
             var changeAmount = new decimal(0);
             var outputSum = new decimal(0);
 
+			// user can specify the localization for the resulting decimals
+			if (ResultCulture == null)
+				ResultCulture = DecimalCulture;
+			
             foreach(dynamic input in inputs)
             {
                 inputSum += Decimal.Parse(input["input_value"].ToString(), DecimalCulture);
@@ -152,9 +156,9 @@ namespace BlockIoLib
             dynamic returnObj = new
             {
                 network = data.Data["network"],
-				network_fee = networkFee.ToString("F8", DecimalCulture),
-				blockio_fee = blockIoFee.ToString("F8", DecimalCulture),
-				total_amount_to_send = outputSum.ToString("F8", DecimalCulture)
+				network_fee = networkFee.ToString("F8", ResultCulture),
+				blockio_fee = blockIoFee.ToString("F8", ResultCulture),
+				total_amount_to_send = outputSum.ToString("F8", ResultCulture)
             };
 
 
