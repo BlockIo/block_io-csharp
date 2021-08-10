@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using RestSharp;
 using System.Collections.Generic;
 using NBitcoin;
+using System.Globalization;
 
 namespace BlockIoLib
 {
@@ -14,6 +15,8 @@ namespace BlockIoLib
         Network network;
         Dictionary<string, Key> userKeys;
 
+		CultureInfo DecimalCulture = new CultureInfo("en-US");
+		
         private readonly RestClient RestClient;
         private readonly string ApiUrl;
 
@@ -127,20 +130,20 @@ namespace BlockIoLib
 
             foreach(dynamic input in inputs)
             {
-                inputSum += Convert.ToDecimal(input["input_value"].ToString());
+                inputSum += Decimal.Parse(input["input_value"].ToString(), DecimalCulture);
             }
 
             foreach(dynamic output in outputs)
             {
                 if(output["output_category"].ToString() == "blockio-fee")
                 {
-                    blockIoFee += Convert.ToDecimal(output["output_value"].ToString());
+                    blockIoFee += Decimal.Parse(output["output_value"].ToString(), DecimalCulture);
                 } else if (output["output_category"].ToString() == "change")
                 {
-                    changeAmount += Convert.ToDecimal(output["output_value"].ToString());
+                    changeAmount += Decimal.Parse(output["output_value"].ToString(), DecimalCulture);
                 } else
                 {
-                    outputSum += Convert.ToDecimal(output["output_value"].ToString());
+                    outputSum += Decimal.Parse(output["output_value"].ToString(), DecimalCulture);
                 }
             }
 
@@ -149,9 +152,9 @@ namespace BlockIoLib
             dynamic returnObj = new
             {
                 network = data.Data["network"],
-                network_fee = networkFee.ToString("F8"),
-                blockio_fee = blockIoFee.ToString("F8"),
-                total_amount_to_send = outputSum.ToString("F8")
+				network_fee = networkFee.ToString("F8", DecimalCulture),
+				blockio_fee = blockIoFee.ToString("F8", DecimalCulture),
+				total_amount_to_send = outputSum.ToString("F8", DecimalCulture)
             };
 
 
@@ -182,7 +185,7 @@ namespace BlockIoLib
             {
                 var preOutputValue = input["input_value"].ToString();
 
-                InputOutputDifference += Convert.ToDecimal(preOutputValue);
+                InputOutputDifference += Decimal.Parse(preOutputValue, DecimalCulture);
                 var from_addr = BitcoinAddress.Create(input["spending_address"].ToString(), network);
                 var preTxId = input["previous_txid"].ToString();
                 var preOutputIndex = Convert.ToUInt32(input["previous_output_index"].ToString());
@@ -292,7 +295,7 @@ namespace BlockIoLib
             {
                 var to_addr = BitcoinAddress.Create(output["receiving_address"].ToString(), network);
                 var value = output["output_value"].ToString();
-                InputOutputDifference -= Convert.ToDecimal(value);
+                InputOutputDifference -= Decimal.Parse(value, DecimalCulture);
                 if (output["output_category"].ToString() == "change")
                 {
                     txBuilder.SetChange(to_addr);
