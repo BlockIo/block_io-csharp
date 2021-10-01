@@ -27,7 +27,7 @@ namespace BlockIoLib.UnitTests
         [Test]
         public void TestP2WPKHOverP2SHAddress()
         {
-            var scriptAddress = privkey1.PubKey.WitHash.GetAddress(network).GetScriptAddress().ToString();
+            var scriptAddress = privkey1.PubKey.WitHash.ScriptPubKey.Hash.GetAddress(network).ToString();
             
             Assert.AreEqual(scriptAddress, "Qgn9vENxxnNCPun8CN6KR1PPB7WCo9oxqc");
         }
@@ -43,7 +43,8 @@ namespace BlockIoLib.UnitTests
         [Test]
         public void TestP2SHAddress()
         {
-            var P2shMultiSigAddr = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, new[] { privkey1.PubKey, privkey2.PubKey }).GetScriptAddress(network).ToString();
+            var P2shScriptPubKey = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, new[] { privkey1.PubKey, privkey2.PubKey });
+            var P2shMultiSigAddr = P2shScriptPubKey.Hash.GetAddress(network).ToString();
 
             Assert.AreEqual(P2shMultiSigAddr, "QPZMy7ivpYdkJRLhtTx7tj5Fa4doQ2auWk");
         }
@@ -52,7 +53,7 @@ namespace BlockIoLib.UnitTests
         public void TestP2WSHOverP2SHAddress()
         {
             var WitScriptId = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, new[] { privkey1.PubKey, privkey2.PubKey }).WitHash;
-            var P2shWrappedMultiSigAddr = PayToWitScriptHashTemplate.Instance.GenerateScriptPubKey(WitScriptId).GetScriptAddress(network).ToString();
+            var P2shWrappedMultiSigAddr = PayToWitScriptHashTemplate.Instance.GenerateScriptPubKey(WitScriptId).Hash.GetAddress(network).ToString();
 
             Assert.AreEqual(P2shWrappedMultiSigAddr, "QeyxkrKbgKvxbBY1HLiBYjMnZx1HDRMYmd");
         }
@@ -60,7 +61,7 @@ namespace BlockIoLib.UnitTests
         [Test]
         public void TestWitnessV0Address()
         {
-            var WitnessV0Address = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, new[] { privkey1.PubKey, privkey2.PubKey }).GetWitScriptAddress(network).ToString();
+            var WitnessV0Address = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, new[] { privkey1.PubKey, privkey2.PubKey }).WitHash.GetAddress(network).ToString();
 
             Assert.AreEqual(WitnessV0Address, "tltc1q6s4cxsg5q4vm0ksst6rxn68h6ksrwumy9tvzgqa6jxuqllxyzh0qxt7q8g");
         }
