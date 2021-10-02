@@ -343,8 +343,8 @@ namespace BlockIoLib
                     if (userKeys.ContainsKey(pubkey.ToHex()))
                     {
                         Key key = userKeys[pubkey.ToHex()];
-
-                        TransactionSignature signature = unsignedTx.SignInput(key, inputCoins[inputIte]);
+                        //TransactionSignature signature = unsignedTx.SignInput(key, inputCoins[inputIte]);
+                        TransactionSignature signature = unsignedTx.Inputs.FindIndexedInput(inputCoins[inputIte].Outpoint).Sign(key, inputCoins[inputIte]);
                         var sigString = signature.ToString();
 
                         // signature contains the sighash at the end (sighash.ALL => 01)

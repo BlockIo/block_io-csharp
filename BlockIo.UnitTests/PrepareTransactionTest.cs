@@ -56,6 +56,31 @@ namespace BlockIoLib.UnitTests
         }
 
         [Test]
+        public void testWitnessV1Transaction()
+        {
+            dynamic prepareTransactionResponse = new object();
+            dynamic createAndSignTransactionResponse = new object();
+
+            using (StreamReader r = new StreamReader("./data/prepare_transaction_response_witness_v1_output.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                prepareTransactionResponse = JsonConvert.DeserializeObject<BlockIoResponse<dynamic>>(json);
+            }
+            using (StreamReader r = new StreamReader("./data/create_and_sign_transaction_response_witness_v1_output.json"))
+            {
+                string json = r.ReadToEnd().Replace(" ", "");
+                createAndSignTransactionResponse = JsonConvert.DeserializeObject(json);
+            }
+
+            var response = blockIo.CreateAndSignTransaction(prepareTransactionResponse);
+
+            response = JsonConvert.SerializeObject(response); //convert dynamic object to json string
+            response = JsonConvert.DeserializeObject(response); //convert json string back to object
+
+            Assert.AreEqual(response, createAndSignTransactionResponse);
+        }
+
+        [Test]
         public void testSweepP2WPKH()
         {
             dynamic prepareTransactionResponse = new object();

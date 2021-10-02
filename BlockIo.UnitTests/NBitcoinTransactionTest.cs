@@ -27,8 +27,8 @@ namespace BlockIoLib.UnitTests
             var P2shMultiSig = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, new[] { privkey1.PubKey, privkey2.PubKey });
             var WitScriptId = P2shMultiSig.WitHash;
 
-            var from_addr = P2shMultiSig.GetScriptAddress(network);
-            var to_addr = PayToWitScriptHashTemplate.Instance.GenerateScriptPubKey(WitScriptId).GetScriptAddress(network);
+            var from_addr = P2shMultiSig.Hash.GetAddress(network);
+            var to_addr = PayToWitScriptHashTemplate.Instance.GenerateScriptPubKey(WitScriptId).Hash.GetAddress(network);
 
             Assert.AreEqual(from_addr.ToString(), "QPZMy7ivpYdkJRLhtTx7tj5Fa4doQ2auWk");
             Assert.AreEqual(to_addr.ToString(), "QeyxkrKbgKvxbBY1HLiBYjMnZx1HDRMYmd");
@@ -65,7 +65,7 @@ namespace BlockIoLib.UnitTests
 
             var P2shWrappedMultiSig = PayToWitScriptHashTemplate.Instance.GenerateScriptPubKey(WitScriptId);
 
-            var from_addr = P2shWrappedMultiSig.GetScriptAddress(network); // P2wsh-over-P2sh
+            var from_addr = P2shWrappedMultiSig.Hash.GetAddress(network); // P2wsh-over-P2sh
             var to_addr = BitcoinAddress.Create("tltc1qk2erszs7fp407kh94e6v3yhfq2njczjvg4hnz6", network); //P2WPKH
 
             var prevTxId = "2464c6122378ee5ed9a42d5192e15713b107924d05d15b58254eb7b2030118c7";
@@ -105,7 +105,7 @@ namespace BlockIoLib.UnitTests
             var outputValue = prevOutputValue - Fee;
 
             var from_addr = privkey1.PubKey.WitHash.GetAddress(network); // P2WPKH
-            var to_addr = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, new[] { privkey1.PubKey, privkey2.PubKey }).GetWitScriptAddress(network); // witnessV0
+            var to_addr = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, new[] { privkey1.PubKey, privkey2.PubKey }).WitHash.GetAddress(network); // witnessV0
 
             var txOut = new TxOut(prevOutputValue, from_addr);
             var InputCoin = new Coin(new OutPoint(new uint256(prevTxId), 0), txOut);
@@ -140,8 +140,8 @@ namespace BlockIoLib.UnitTests
             var outputValue = prevOutputValue - Fee;
             var P2shMultiSig = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, new[] { privkey1.PubKey, privkey2.PubKey });
 
-            var from_addr = P2shMultiSig.GetWitScriptAddress(network); // witnessV0
-            var to_addr = privkey1.PubKey.WitHash.GetAddress(network).GetScriptAddress(); // P2WPKH-over-P2SH
+            var from_addr = P2shMultiSig.WitHash.GetAddress(network); // witnessV0
+            var to_addr = privkey1.PubKey.WitHash.ScriptPubKey.Hash.GetAddress(network); // P2WPKH-over-P2SH
 
             var txOut = new TxOut(prevOutputValue, from_addr);
             var InputCoin = new ScriptCoin(new OutPoint(new uint256(prevTxId), 0), txOut, P2shMultiSig);
@@ -175,7 +175,7 @@ namespace BlockIoLib.UnitTests
             var prevOutputValue = PreOutputValue - Fee - Fee - Fee - Fee;
             var outputValue = prevOutputValue - Fee;
 
-            var from_addr = privkey1.PubKey.WitHash.GetAddress(network).GetScriptAddress(); // P2WPKH-over-P2SH
+            var from_addr = privkey1.PubKey.WitHash.ScriptPubKey.Hash.GetAddress(network); // P2WPKH-over-P2SH
             var to_addr = privkey1.PubKey.GetAddress(ScriptPubKeyType.Legacy, network); // P2PKH
 
             var txOut = new TxOut(prevOutputValue, from_addr);
@@ -212,7 +212,7 @@ namespace BlockIoLib.UnitTests
             var P2shMultiSig = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, new[] { privkey1.PubKey, privkey2.PubKey });
 
             var from_addr = privkey1.PubKey.GetAddress(ScriptPubKeyType.Legacy, network); // P2PKH
-            var to_addr = P2shMultiSig.GetScriptAddress(network); // P2SH
+            var to_addr = P2shMultiSig.Hash.GetAddress(network); // P2SH
 
             var txOut = new TxOut(prevOutputValue, from_addr);
             var InputCoin = new Coin(new OutPoint(new uint256(prevTxId), 0), txOut);
