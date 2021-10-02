@@ -1,42 +1,36 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <Company>Block.io, Inc.</Company>
-    <Authors>Block.io, Inc.</Authors>
-    <Copyright>Copyright 2021, Block.io, Inc.</Copyright>
-    <Description>The C# Block.io SDK</Description>
-    <PackageTags>block.io,wallet,sdk,bitcoin,litecoin,dogecoin</PackageTags>
-    <PackageProjectUrl>https://github.com/BlockIo/block_io-csharp</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/BlockIo/block_io-csharp</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <Version Condition=" '$(Version)' == '' ">2.0.3</Version>
-    <LangVersion>8.0</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <DebugType>portable</DebugType>
-    <Optimize>true</Optimize>
-    <DocumentationFile>bin\Release\BlockIo.XML</DocumentationFile>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Base58Check" Version="0.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="3.1.7" />
-    <PackageReference Include="NBitcoin" Version="5.0.77" />
-    <PackageReference Include="RestSharp" Version="106.12.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Program.cs" />
-  </ItemGroup>
+	<PropertyGroup>
+		<Company>Block.io, Inc.</Company>
+		<Authors>Block.io, Inc.</Authors>
+		<Copyright>Copyright 2021, Block.io, Inc.</Copyright>
+		<Description>The C# Block.io SDK</Description>
+		<PackageTags>block.io,wallet,sdk,bitcoin,litecoin,dogecoin</PackageTags>
+		<PackageProjectUrl>https://github.com/BlockIo/block_io-csharp</PackageProjectUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<RepositoryUrl>https://github.com/BlockIo/block_io-csharp</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+	</PropertyGroup>
+	<PropertyGroup>
+		<Version Condition=" '$(Version)' == '' ">2.0.3</Version>
+		<LangVersion>8.0</LangVersion>
+	</PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFramework>netcoreapp3.1</TargetFramework>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+		<DebugType>portable</DebugType>
+		<Optimize>true</Optimize>
+		<DocumentationFile>bin\Release\BlockIo.XML</DocumentationFile>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Base58Check" Version="0.2.0"/>
+		<PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="3.1.7"/>
+		<PackageReference Include="NBitcoin" Version="6.0.10"/>
+		<PackageReference Include="RestSharp" Version="106.12.0"/>
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Remove="Program.cs"/>
+	</ItemGroup>
 </Project>
