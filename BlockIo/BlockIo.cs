@@ -307,8 +307,8 @@ namespace BlockIoLib
                 txBuilder.Send(to_addr, value);
             }
 
-            txBuilder.SendFees(InputOutputDifference.ToString());
-
+            txBuilder.SendFees(InputOutputDifference.ToString("F8", DecimalCulture));
+			
             var unsignedTx = txBuilder.BuildTransaction(false);
 
             int inputIte = 0;
